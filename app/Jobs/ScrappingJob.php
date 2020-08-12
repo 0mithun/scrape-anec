@@ -147,7 +147,7 @@ class ScrappingJob implements ShouldQueue {
                 $image_path = 'download/amazon/' . $fullFileName;
                 $fullPath = 'public/' . $image_path;
 
-                $this->file_download_curl( $fullPath, $this->hread->web_photo_link );
+                $this->file_download_curl( $fullPath, $this->thread->web_photo_link );
 
                 $data = [
                     'amazon_image_path'   => $fullPath,
@@ -171,6 +171,7 @@ class ScrappingJob implements ShouldQueue {
             ];
             $this->saveInfo( $data );
         } else {
+            //Errorv Here
             $client = new Client();
             $crawler = $client->request( 'GET', $amazonUrl );
             $title = $crawler->filter( 'span#productTitle' )->first()->text();
@@ -250,7 +251,7 @@ class ScrappingJob implements ShouldQueue {
     }
 
     public function saveInfo( $data ) {
-        $thread = Thread::where( 'id', $this->hread->id )->first();
+        $thread = Thread::where( 'id', $this->thread->id )->first();
         $thread->update( $data );
     }
 
