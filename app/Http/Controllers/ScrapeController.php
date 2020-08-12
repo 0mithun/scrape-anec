@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ScrappingJob;
 use App\Thread;
 use Goutte\Client;
 
@@ -29,24 +30,27 @@ class ScrapeController extends Controller {
         // dd( $threads );
 
         $threads->map( function ( $thread ) {
-            if ( $thread->web_photo_link != '' ) {
-                if ( filter_var( $thread->web_photo_link, FILTER_VALIDATE_URL ) ) {
-                    $pos = strpos( $thread->web_photo_link, 'amazon.com' );
+            ScrappingJob::dispatch( $thread );
+            // WikiImageProcess::dispatch( request( 'wiki_info_page_url' ), $thread, false );
 
-                    if ( $pos != FALSE ) {
-                        $this->processAmazon( $thread );
-                    } else {
-                        $this->processWebPhotoLink( $thread );
-                    }
-                } else {
-                    // save flag in error column
-                    $thread->error = true;
-                }
-            } else {
-                if ( $thread->wikipedia_mainpage_link != '' ) {
-                    $this->processWikipediaURL( $thread, $thread->wikipedia_mainpage_link );
-                }
-            }
+            // if ( $thread->web_photo_link != '' ) {
+            //     if ( filter_var( $thread->web_photo_link, FILTER_VALIDATE_URL ) ) {
+            //         $pos = strpos( $thread->web_photo_link, 'amazon.com' );
+
+            //         if ( $pos != FALSE ) {
+            //             $this->processAmazon( $thread );
+            //         } else {
+            //             $this->processWebPhotoLink( $thread );
+            //         }
+            //     } else {
+            //         // save flag in error column
+            //         $thread->error = true;
+            //     }
+            // } else {
+            //     if ( $thread->wikipedia_mainpage_link != '' ) {
+            //         $this->processWikipediaURL( $thread, $thread->wikipedia_mainpage_link );
+            //     }
+            // }
         } );
     }
 
