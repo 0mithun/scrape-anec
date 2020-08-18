@@ -165,7 +165,13 @@ class ScrappingJob implements ShouldQueue {
     public function scrapeAmazon() {
         $amazonUrl = $this->thread->amazon_product_link;
         $pos = strpos( $amazonUrl, 'images-amazon.com' );
+        $posMedia = strpos( $amazonUrl, 'media-amazon.com' );
         if ( $pos != false ) {
+            $data = [
+                'error' => true,
+            ];
+            $this->saveInfo( $data );
+        }if ( $pos != false ) {
             $data = [
                 'error' => true,
             ];
@@ -174,7 +180,17 @@ class ScrappingJob implements ShouldQueue {
             //Errorv Here
             $client = new Client();
             $crawler = $client->request( 'GET', $amazonUrl );
-            $title = $crawler->filter( 'span#productTitle' )->first()->text();
+            $title = $crawler->filter( 'span#productTitle' );
+            $detailTitle = $crawler->filter( 'span#productTitle' );
+
+            if ( $title->count() > 0 ) {
+                $title = $title->first()->text();
+            } else if ( $detailTitle->count() > 0 ) {
+                $title = $detailTitle->first()->text();
+            } else {
+                $title = '';
+            }
+
             $title = $title . ' <a href="' . $amazonUrl . "&tag=anecdotagecom-20" . '">BUY IT HERE</a>';
 
             $imageWrapper = $crawler->filter( 'div#imgTagWrapperId img' );
@@ -244,6 +260,8 @@ class ScrappingJob implements ShouldQueue {
         curl_setopt( $ch, CURLOPT_FILE, $fp );
         curl_setopt( $ch, CURLOPT_HEADER, 0 );
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false );
         curl_exec( $ch );
         $error = curl_error( $ch );
         curl_close( $ch );

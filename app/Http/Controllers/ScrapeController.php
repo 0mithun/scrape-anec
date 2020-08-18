@@ -25,7 +25,8 @@ class ScrapeController extends Controller {
      */
 
     public function scrape() {
-        $threads = Thread::where( 'web_photo_link', '!=', '' )->limit( 10 )->get();
+        // $threads = Thread::where( 'id', '<', 5001 )->get();
+        $threads = Thread::where( 'id', '<', 150001 )->where( 'id', '>', '120000' )->get();
         // $threads = Thread::latest()->take( 1000 )->get();
         // dd( $threads );
 
@@ -249,6 +250,7 @@ class ScrapeController extends Controller {
         curl_setopt( $ch, CURLOPT_FILE, $fp );
         curl_setopt( $ch, CURLOPT_HEADER, 0 );
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+        // curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false );
         curl_exec( $ch );
         $error = curl_error( $ch );
         curl_close( $ch );
