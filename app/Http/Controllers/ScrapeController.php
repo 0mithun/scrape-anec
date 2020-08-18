@@ -284,4 +284,16 @@ class ScrapeController extends Controller {
         dump( $image_path );
     }
 
+    public function checkHTML() {
+        $threads = Thread::where( 'amazon_image_path', 'LIKE', '%ff5fbfdc7c258a3db251ffd4ff9541cd%' )->get();
+
+        return $threads;
+    }
+
+    public function checkImageURl() {
+        $url = 'https://en.wikipedia.org/wiki/Kate_Smith#/media/File:Kate_Smith_Billboard_4.jpg';
+
+        return $this->getFileExtensionFromURl( $url );
+    }
+
 }

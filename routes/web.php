@@ -38,3 +38,5 @@ Route::get( '/', function () {
 // Route::get( '/scrape-amazon', 'ScrapeController@scrapeAmazon' );
 
 Route::get( '/scrape-image', 'ScrapeController@scrapeImage' );
+Route::get( '/check-html', 'ScrapeController@checkHTML' );
+Route::get( '/check-image-url', 'ScrapeController@checkImageURl' );
