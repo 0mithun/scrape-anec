@@ -271,4 +271,17 @@ class ScrapeController extends Controller {
         return $extension;
     }
 
+    public function scrapeImage() {
+        $url = 'https://cdn.newsapi.com.au/image/v1/ee4f5f7d2d1249e3b3c5c40ddff7a289';
+
+        // $extension = $this->getFileExtensionFromURl( $url );
+        $extension = 'jpg';
+        $fileName = md5( time() . uniqid() );
+        $fullFileName = $fileName . '.' . $extension;
+        $image_path = 'public/download/otherurl/' . $fullFileName;
+
+        // $this->file_download_curl( $fullPath, $url );
+        dump( $image_path );
+    }
+
 }

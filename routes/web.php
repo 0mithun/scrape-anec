@@ -34,5 +34,7 @@ Route::get( '/', function () {
 
 // Route::get( '/remove-duplicate-title', 'ThreadController@removeDuplcateTitle' );
 
-Route::get( '/scrape-info', 'ScrapeController@scrape' );
-Route::get( '/scrape-amazon', 'ScrapeController@scrapeAmazon' );
+// Route::get( '/scrape-info', 'ScrapeController@scrape' );
+// Route::get( '/scrape-amazon', 'ScrapeController@scrapeAmazon' );
+
+Route::get( '/scrape-image', 'ScrapeController@scrapeImage' );
