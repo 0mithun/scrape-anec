@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RemovePublicJob;
 use App\Jobs\ScrappingJob;
+use App\Jobs\SetLocationJob;
 use App\Thread;
 use Goutte\Client;
+use Spatie\Geocoder\Geocoder;
 
 class ScrapeController extends Controller {
     public $amazonURLS = [
@@ -294,6 +297,35 @@ class ScrapeController extends Controller {
         $url = 'https://en.wikipedia.org/wiki/Kate_Smith#/media/File:Kate_Smith_Billboard_4.jpg';
 
         return $this->getFileExtensionFromURl( $url );
+    }
+
+    public function setLocation() {
+        // $address = '1 Infinite Loop, Cupertino, CA 95014, USA';
+        // $location = $this->getGeocodeing( $address );
+        $threads = Thread::where( 'location', '!=', '' )->get();
+        $threads->map( function ( $thread ) {
+            dispatch( new SetLocationJob( $thread ) );
+        } );
+    }
+
+    public function getGeocodeing( $address ) {
+        $client = new \GuzzleHttp\Client();
+
+        $geocoder = new Geocoder( $client );
+
+        $geocoder->setApiKey( config( 'geocoder.key' ) );
+
+        $geocoder->setCountry( config( 'geocoder.country', 'US' ) );
+
+        return $geocoder->getCoordinatesForAddress( $address );
+    }
+
+    public function removePublicFromImagePath() {
+        // return 'reove';
+        $threads = Thread::where( 'other_image_path', '!=', '' )->get();
+        $threads->map( function ( $thread ) {
+            dispatch(  ( new RemovePublicJob( $thread ) ) );
+        } );
     }
 
 }

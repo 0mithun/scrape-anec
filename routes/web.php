@@ -37,6 +37,9 @@ Route::get( '/', function () {
 // Route::get( '/scrape-info', 'ScrapeController@scrape' );
 // Route::get( '/scrape-amazon', 'ScrapeController@scrapeAmazon' );
 
-Route::get( '/scrape-image', 'ScrapeController@scrapeImage' );
-Route::get( '/check-html', 'ScrapeController@checkHTML' );
-Route::get( '/check-image-url', 'ScrapeController@checkImageURl' );
+// Route::get( '/scrape-image', 'ScrapeController@scrapeImage' );
+// Route::get( '/check-html', 'ScrapeController@checkHTML' );
+// Route::get( '/check-image-url', 'ScrapeController@checkImageURl' );
+
+// Route::get( '/set-location', 'ScrapeController@setLocation' );
+Route::get( '/remove-public', 'ScrapeController@removePublicFromImagePath' );
