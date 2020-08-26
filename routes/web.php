@@ -42,4 +42,6 @@ Route::get( '/', function () {
 // Route::get( '/check-image-url', 'ScrapeController@checkImageURl' );
 
 // Route::get( '/set-location', 'ScrapeController@setLocation' );
-Route::get( '/remove-public', 'ScrapeController@removePublicFromImagePath' );
+// Route::get( '/remove-public', 'ScrapeController@removePublicFromImagePath' );
+
+Route::get( '/scrape-tags', 'TagController@scrrapeTagImage' );

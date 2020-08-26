@@ -322,7 +322,7 @@ class ScrapeController extends Controller {
 
     public function removePublicFromImagePath() {
         // return 'reove';
-        $threads = Thread::where( 'other_image_path', '!=', '' )->get();
+        $threads = Thread::where( 'other_image_pathit p', '!=', '' )->get();
         $threads->map( function ( $thread ) {
             dispatch(  ( new RemovePublicJob( $thread ) ) );
         } );
