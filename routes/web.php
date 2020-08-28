@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get( '/', function () {
-    return view( 'welcome' );
-} );
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // Route::get( '/update-slug', 'ThreadController@updateSlug' );
 // Route::get( '/update-word-count', 'ThreadController@updateWordCount' );
@@ -44,4 +44,10 @@ Route::get( '/', function () {
 // Route::get( '/set-location', 'ScrapeController@setLocation' );
 // Route::get( '/remove-public', 'ScrapeController@removePublicFromImagePath' );
 
-Route::get( '/scrape-tags', 'TagController@scrrapeTagImage' );
+
+//Incomplete
+// Route::get( '/scrape-tags', 'TagController@scrrapeTagImage' );
+
+// Route::get('/set-amazon-pixel', 'ScrapeController@amaxonpixel');
+// Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
+// Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
