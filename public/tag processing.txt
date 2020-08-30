@@ -1,0 +1,111 @@
+First COL is one-letter code = what to do with data in that row (delete tag, add new tag, replace tag with other tags, scrape from wikipedia, or download non-wiki image)..
+
+Columns:
+A) task (what to do with this row)
+B) old tag (optional)
+C) new tags (optional)
+D) wikipedia page (optional)
+E) image link (optional)
+F) amazon product link (optional)
+
+There are 5 possible tasks:
+
+1) task=d: delete
+Delete old tag
+
+2) task=r: replace
+For each thread with old tag (COL B): add ALL the new tags (COL C, comma delimited) & delete old tag. Create new tag(s) if they don't exist. Destroy old tag.
+
+3) task=a: add
+Just add new tag (none of these rows have images).
+
+4) task=w: Wikipedia scraping
+All of these have a value for wikipedia page (COL D).
+Scrape image, description, & license type from wikipedia (like before)
+If tag is new, add it.
+Use first image from wikipedia page as tag image. (Don't need to store these images, can hot link)
+
+5) task=i: get image (from www link)
+Use image link (COL E) to get tag image.
+If tag is new, add it.
+Also need a description (see below)
+
+----------
+Notes:
+
+There may be a few duplicates; it won't matter. Example, if row 333 and row 444 both assign a different image to "sometag," just overwrite the first one.
+
+Scraping: need image, description, & license type. There are 3 slightly different wikipedia pages.
+1) https://commons.wikimedia.org/wiki/File:Jarittos-flavors.jpg
+2) https://en.wikipedia.org/wiki/1920s#/media/File:Jazzing_orchestra_1921.png
+3) https://en.wikipedia.org/wiki/Tom_Cruise
+
+License type:
+Type will be like "CC-BY-SA-3.0". Only need to worry about 1.0, 2.0, 2.5, 3.0, 4.0 & Public Domain.
+
+Descriptions:
+All tags need a description. If data is scraped, description is from wikipedia. Otherwise, use tag name (eg: "Police") as description.
+
+Every description should include: "[shop]" with a link to amazon. If amazon product link exists, use that link; else use generic search link with tag text as search term.
+
+If nothing in COL 6... then use link like:
+http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords=TAGTEXT
+&linkCode=ur2&tag=anecdotagecom-20
+
+Should strip HTML tags from wikipedia descriptions.
+
+Notes for displaying a tag img on tag page:
+- most images (eg from Wikipedia) are rectangles; for image display, use middle section. Add thin black border around circular frame.
+- onclick image, go to amazon product link
+- beside tag image, put small question mark/tool tip icon; onclick, open image in popup (& show image description)
+- if no image exists for tag, use default
+- for admin (user 0), please show "replace image" link: opens a form where I can submit image link & description; code should automatically scrape/download info & generate description.
+
+
+
+Hey i forgot something important...
+Image description should also show AUTHOR
+
+Example
+https://en.wikipedia.org/wiki/Lumber#/media/File:The_longest_board_in_the_world_(2002).jpg
+
+Author is "Piotr J"
+
+Our photo description should say:
+"The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo: Piotr J (CC BY-SA 3.0)"
+
+All of our image descriptions should be like:
+[Scraped description]. Photo by: [scraped author] ([scraped license type])
+EG:
+"The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo: Piotr J (CC BY-SA 3.0)"
+Use:
+"The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo (CC BY-SA 3.0)"
+Just say "Wikipedia photo" + license type
+
+
+
+Description has 4 parts
+a) image info
+b) author	
+c) license
+d) [shop] link
+
+Suppose image is for tag = monkeys
+
+a) image info
+Try to scrape, else use tag text:
+Monkeys
+
+b) author	
+Try to scrape, else null
+
+c) license
+Try to scrape, else null
+
+d) [shop] link
+Try to scrape, else use 
+http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords=TAGTEXT
+&linkCode=ur2&tag=anecdotagecom-20
+
+https://en.wikipedia.org/wiki/Speech-language_pathology
+https://en.wikipedia.org/wiki/polish people

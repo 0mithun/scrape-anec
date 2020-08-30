@@ -50,4 +50,6 @@ Route::get('/', function () {
 
 // Route::get('/set-amazon-pixel', 'ScrapeController@amaxonpixel');
 // Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
-Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
+// Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
+
+Route::get('/tag-scrape', 'TagController@scrapeTag');
