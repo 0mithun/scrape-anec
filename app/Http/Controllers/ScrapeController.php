@@ -370,11 +370,11 @@ class ScrapeController extends Controller
 
     public function wikipixel()
     {
-        $threads = Thread::where('wiki_image_path', '!=', '')
+        $threads = Thread::where('wiki_image_path', '!=', '')->where('wiki_image_path_pixel_color', '=', '')
             //->where( 'id', '<', 130000 )
             ->get();
 
-        // return $threads->count();
+        return $threads->count();
 
         $threads->map(function ($thread) {
             dispatch((new SetPixelJob($thread)));
