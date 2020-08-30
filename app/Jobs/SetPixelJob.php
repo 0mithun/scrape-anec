@@ -122,14 +122,16 @@ class SetPixelJob implements ShouldQueue
                 $im = imagecreatefromgif($image_path);
             }
 
+            if (isset($im)) {
 
-            $rgb = imagecolorat($im, 0, 0);
-            $colors = imagecolorsforindex($im, $rgb);
-            array_pop($colors);
-            array_push($colors, 1);
-            $rgbaString = join(', ', $colors);
+                $rgb = imagecolorat($im, 0, 0);
+                $colors = imagecolorsforindex($im, $rgb);
+                array_pop($colors);
+                array_push($colors, 1);
+                $rgbaString = join(', ', $colors);
 
-            return $rgbaString;
+                return $rgbaString;
+            }
         }
         return false;
     }
