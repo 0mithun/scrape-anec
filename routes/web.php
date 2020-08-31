@@ -52,4 +52,6 @@ Route::get('/', function () {
 // Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
 // Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
 
-Route::get('/tag-scrape', 'TagController@scrapeTag');
+// Route::get('/tag-scrape', 'TagController@scrapeTag');
+
+Route::get('/new-tag', 'NewTagController@showAllNewTag');

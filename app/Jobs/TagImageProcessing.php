@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use DB;
 
 class TagImageProcessing implements ShouldQueue
 {
@@ -33,7 +34,7 @@ class TagImageProcessing implements ShouldQueue
      */
     public function handle()
     {
-        $this->scrapeTag();
+        // $this->scrapeTag();
         // if ($this->tag->name != null) {
         //     $client = new Client();
         //     $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
@@ -147,7 +148,104 @@ class TagImageProcessing implements ShouldQueue
         }
     }
 
+    public function attachTags()
+    {
+    }
 
+    /**
+     * Replace tag
+     * For each thread with old tag (COL B): add ALL the new tags (COL C, comma delimited) & delete old tag. Create new tag(s) if they don't exist. Destroy old tag.
+     */
+
+    public function taskR()
+    {
+        $old_tag = Tags::where('name', strtolower($this->tag->name))->first();
+        $newTag = $this->tag->new_tag;
+        $splitNewTag = explode(',', $newTag);
+
+        if ($old_tag) {
+            $threads = $old_tag->threads;
+
+            $threads->echo(function ($thread) use ($old_tag) {
+                $thread->tags()->detach($old_tag->id);
+            });
+            $old_tag->delete();
+
+            if (count($splitNewTag) > 0) {
+                $tag_ids = [];
+                foreach ($splitNewTag as $tag) {
+                    $searchTag  = Tags::where('name', strtolower($tag))->first();
+                    if ($searchTag) {
+                        $tag_ids[] = $searchTag->id;
+                    } else {
+                        $newTag = Tags::create(['name' => strtolower($tag)]);
+                        $tag_ids[] = $newTag->id;
+                    }
+                }
+                $threads->each(function ($thread) use ($tag_ids) {
+                    $thread->tags()->syncWithoutDetaching($tag_ids);
+                });
+            }
+        }
+    }
+
+    /**
+     * task=a: add
+     * Just add new tag (none of these rows have images).
+     */
+    public function taskA()
+    {
+        $tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
+
+        if (!$tag) {
+        }
+    }
+
+    /**
+     *
+     * task=w: Wikipedia scraping
+     * All of these have a value for wikipedia page (COL D).
+     * Scrape image, description, & license type from wikipedia (like before)
+     * If tag is new, add it.
+     * Use first image from wikipedia page as tag image. (Don't need to store these images, can hot link)
+     *
+     */
+
+    public function taskW()
+    {
+    }
+
+    /**
+     * task=i: get image (from www link)
+     * Use image link (COL E) to get tag image.
+     * If tag is new, add it.
+     * Also need a description (see below)
+     */
+
+    public function taskI()
+    {
+        $tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
+        // if ($tag) {
+        //     $threadTags = DB::table('thread_tag')->where('tag_id', $tag->id)->delete();
+
+        //     $tag->delete();
+        // }
+    }
+
+    /**
+     * task=d: delete
+     * Delete old tag
+     */
+
+    public function taskD()
+    {
+        $tag = Tags::where('name', $this->tag->old_tag)->first();
+        if ($tag) {
+            $threadTags = DB::table('thread_tag')->where('tag_id', $tag->id)->delete();
+
+            $tag->delete();
+        }
+    }
 
     public function saveInfo($data)
     {
