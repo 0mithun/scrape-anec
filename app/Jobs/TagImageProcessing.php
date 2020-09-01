@@ -36,47 +36,74 @@ class TagImageProcessing implements ShouldQueue
      */
     public function handle()
     {
-        //
+        if ($this->tag->task == 'd') {
+        } else if ($this->tag->task == 'r') {
+            $this->taskR();
+        } else if ($this->tag->task == 'a') {
+            $this->taskA();
+        } else if ($this->tag->task == 'w') {
+            $this->taskW();
+        } else if ($this->tag->task == 'i') {
+            $this->taskI();
+        }
     }
 
     public function scrapeWithKeyword()
     {
+
+        $splitKeyword = explode('/', $this->tag->wikipedia_page);
+
+
+        $keyword = array_pop($splitKeyword);
+
+        $keyword = ucwords($keyword);
+        $keyword = str_replace(' ', '_', $keyword);
+        $newUrl = implode('/', $splitKeyword) . '/' . $keyword;
+
         $client = new Client();
-        $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
-        $crawler = $client->request('GET', $url);
-        $anchor =  $crawler->filter('div.thumbinner a.image')->first();
+        // $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
+        $crawler = $client->request('GET', $newUrl);
 
-        $authorText = '';
-        $licenseText = '';
-        $descriptionText = '';
-        $shopText = '';
+        $infobox = $crawler->filter('table.infobox a.image')->first();
 
-        if (count($anchor) > 0) {
-            $href = $anchor->extract(['href'])[0];
+        if (count($infobox)) {
+            $href = $infobox->extract(['href'])[0];
             $image_page_url = 'https://en.wikipedia.org' . $href;
-            $this->scrpeImagePageUrl($image_page_url);
+        } else {
+            //mw-content-text
+            $thumbinner =  $crawler->filter('div.thumbinner a.image')->first();
+            if (count($thumbinner) > 0) {
+                $href = $thumbinner->extract(['href'])[0];
+                $image_page_url = 'https://en.wikipedia.org' . $href;
+            }
         }
+
+        info($newUrl);
+        info($image_page_url);
+        info("\n\n");
+        // $this->scrpeImagePageUrl($image_page_url);
     }
 
 
     /**
+     * Test OK
      * Replace tag
      * For each thread with old tag (COL B): add ALL the new tags (COL C, comma delimited) & delete old tag. Create new tag(s) if they don't exist. Destroy old tag.
      */
 
     public function taskR()
     {
-        $old_tag = Tags::where('name', strtolower($this->tag->name))->first();
-        $newTag = $this->tag->new_tag;
-        $splitNewTag = explode(',', $newTag);
-
+        $old_tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
         if ($old_tag) {
             $threads = $old_tag->threads;
 
-            $threads->echo(function ($thread) use ($old_tag) {
+            $threads->each(function ($thread) use ($old_tag) {
                 $thread->tags()->detach($old_tag->id);
             });
             $old_tag->delete();
+
+            $newTags = $this->tag->new_tags;
+            $splitNewTag = explode(',', $newTags);
 
             if (count($splitNewTag) > 0) {
                 $tag_ids = [];
@@ -97,13 +124,13 @@ class TagImageProcessing implements ShouldQueue
     }
 
     /**
+     * Test Ok
      * task=a: add
      * Just add new tag (none of these rows have images).
      */
     public function taskA()
     {
-        $tag = Tags::where('name', strtolower($this->tag->oldnew_tags))->first();
-
+        $tag = Tags::where('name', strtolower($this->tag->new_tags))->first();
         if (!$tag) {
             Tags::create(['name', strtolower($this->tag->new_tags)]);
         }
@@ -111,12 +138,16 @@ class TagImageProcessing implements ShouldQueue
 
     public function scrpeImagePageUrl($image_page_url)
     {
-        //
         $client = new Client();
-        +$image_page = $client->request('GET', $image_page_url);
+
+        $authorText = '';
+        $licenseText = '';
+        $descriptionText = '';
+        $shopText = '';
+
+        $image_page = $client->request('GET', $image_page_url);
 
         if ($image_page->filter('.fullImageLink a')->count() > 0) {
-
             $full_image_link =  $image_page->filter('.fullImageLink a')->first()->extract(['href'])[0];
             $full_image_link = str_replace('//upload', 'upload', $full_image_link);
             $full_image_link = 'https://' . $full_image_link;
@@ -145,7 +176,7 @@ class TagImageProcessing implements ShouldQueue
             }
         }
 
-        info($this->tag);
+        // info($this->tag);
         info($full_image_link);
         info($descriptionText);
         info($licenseText);
@@ -154,23 +185,33 @@ class TagImageProcessing implements ShouldQueue
 
     public function scrapeFromMediaFile()
     {
+
         $findUrl = '';
         $image_page_url = '';
-        $client = new Client();
-        $url = $this->tag->wikipedia_page;
-        $crawler = $client->request('GET', $url);
+        $split_url = explode('media/', $this->tag->wikipedia_page);
+        if (count($split_url) > 1) {
+            $image_page_url = 'https://en.wikipedia.org/wiki/' . $split_url[1];
+        }
 
-        $thumbinner = $crawler->filter('div.thumbinner');
-        $thumbinner->each(function ($node) use ($findUrl, $image_page_url) {
-            $anchor = $node->filter('a.image');
-            if ($anchor->count() > 0) {
-                $href = $anchor->extract(['href'])[0];
-                if ($href == $findUrl) {
-                    ///wiki/File:Jazzing_orchestra_1921.png
-                    $image_page_url = $href;
-                }
-            }
-        });
+        // dump($image_page_url);
+        // $client = new Client();
+        // $url = $this->tag->wikipedia_page;
+        // $crawler = $client->request('GET', $url);
+
+        // $thumbinner = $crawler->filter('div.thumbinner');
+        // $thumbinner->each(function ($node) use ($findUrl, $image_page_url) {
+        //     $anchor = $node->filter('a.image');
+        //     if ($anchor->count() > 0) {
+        //         $href = $anchor->extract(['href'])[0];
+        //         if ($href == $findUrl) {
+        //             ///wiki/File:Jazzing_orchestra_1921.png
+        //             $image_page_url = $href;
+        //             dump($image_page_url);
+        //             dump($href);
+        //         }
+        //     }
+        // });
+
 
         if ($image_page_url != '') {
             //go to image page url & extract data;
@@ -180,10 +221,38 @@ class TagImageProcessing implements ShouldQueue
 
     public function scrapeFromWikifile()
     {
-        //
-
         $this->scrpeImagePageUrl($this->tag->wikipedia_page);
     }
+    public function scrapeFromArchivo()
+    {
+        $this->scrpeImagePageUrl($this->tag->wikipedia_page);
+    }
+
+    public function scrapeFromEncodedUrl()
+    {
+        $this->scrpeImagePageUrl($this->tag->wikipedia_page);
+    }
+
+    public function scrapeFromDosiro()
+    {
+        $this->scrpeImagePageUrl($this->tag->wikipedia_page);
+    }
+
+    public function scrapeFromMediaArchivo()
+    {
+        //#/media/Archivo:
+
+        $image_page_url = '';
+        $split_url = explode('#/media/Archivo:', $this->tag->wikipedia_page);
+        if (count($split_url) > 1) {
+            $image_page_url = 'https://en.wikipedia.org/wiki/' . $split_url[1];
+        }
+        if ($image_page_url != '') {
+            //go to image page url & extract data;
+            $this->scrpeImagePageUrl($image_page_url);
+        }
+    }
+
     /**
      *
      * task=w: Wikipedia scraping
@@ -196,24 +265,35 @@ class TagImageProcessing implements ShouldQueue
 
     public function taskW()
     {
-        //#/media/File:
-
         $mediaFile = strpos($this->tag->wikipedia_page, '#/media/File:');
         $wikiFIle = strpos($this->tag->wikipedia_page, 'wiki/File:');
+        $archiver = strpos($this->tag->wikipedia_page, 'wiki/Archivo:');
+        $encodeImagePageUrl = strpos($this->tag->wikipedia_page, 'wiki/File%3');
+        $Dosiero = strpos($this->tag->wikipedia_page, 'wiki/Dosiero:');
+        $mediaArchivo = strpos($this->tag->wikipedia_page, '#/media/Archivo:');
+
 
         if ($mediaFile) {
             //scrape from media file
-            $this->scrapeFromMediaFile();
+            // $this->scrapeFromMediaFile();
         } else if ($wikiFIle) {
-            //scrape from wiki file
-
-            $this->scrapeFromWikiFile();
+            // $this->scrapeFromWikiFile();
+        } else if ($archiver) {
+            // $this->scrapeFromArchivo();
+        } else if ($encodeImagePageUrl) {
+            // $this->scrapeFromEncodedUrl();
+        } else if ($Dosiero) {
+            // $this->scrapeFromDosiro();
+        } else if ($mediaArchivo) {
+            // $this->scrapeFromMediaArchivo();
         } else {
             //scrape from wikipedia with keyword
+            $this->scrapeWithKeyword();
         }
     }
 
     /**
+     * Test Ok
      * task=i: get image (from www link)
      * Use image link (COL E) to get tag image.
      * If tag is new, add it.
@@ -222,7 +302,7 @@ class TagImageProcessing implements ShouldQueue
 
     public function taskI()
     {
-        $tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
+        $tag = Tags::where('name', strtolower($this->tag->new_tags))->first();
 
         $fileExtension = explode('.', $this->tag->image_link);
         $fileExtension = array_pop($fileExtension);
@@ -236,7 +316,7 @@ class TagImageProcessing implements ShouldQueue
             $tag->photo = $fullPath;
             $tag->save();
         } else {
-            $newTag = Tags::create(['name' => strtolower($this->tag->old_tag),  'photo' => $fullPath]);
+            $newTag = Tags::create(['name' => strtolower($this->tag->new_tags),  'photo' => $fullPath]);
         }
     }
 
