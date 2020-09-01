@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\NewTag;
 use App\Tags;
 use Goutte\Client;
 use Illuminate\Bus\Queueable;
@@ -10,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use DB;
+use phpDocumentor\Reflection\DocBlock\Tag;
 
 class TagImageProcessing implements ShouldQueue
 {
@@ -22,7 +24,7 @@ class TagImageProcessing implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($tag)
+    public function __construct(NewTag $tag)
     {
         $this->tag = $tag;
     }
@@ -34,69 +36,13 @@ class TagImageProcessing implements ShouldQueue
      */
     public function handle()
     {
-        // $this->scrapeTag();
-        // if ($this->tag->name != null) {
-        //     $client = new Client();
-        //     $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
-
-        //     $shopLink = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->name}&linkCode=ur2&tag=anecdotagecom-20";
-        //     // Description has 4 parts
-        //     // a) image info
-        //     // b) author
-        //     // c) license
-        //     // d) [shop] link
-
-        //     // Suppose image is for tag = monkeys
-
-        //     // a) image info
-        //     // Try to scrape, else use tag text:
-        //     // Monkeys
-
-        //     // b) author
-        //     // Try to scrape, else null
-
-        //     // c) license
-        //     // Try to scrape, else null
-
-        //     // d) [shop] link
-        //     // Try to scrape, else use
-        //     // http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords=TAGTEXT
-        //     // &linkCode=ur2&tag=anecdotagecom-20
-
-
-
-
-        //     // Hey i forgot something important...
-        //     // Image description should also show AUTHOR
-
-        //     // Example
-        //     // https://en.wikipedia.org/wiki/Lumber#/media/File:The_longest_board_in_the_world_(2002).jpg
-
-        //     // Author is "Piotr J"
-
-        //     // Our photo description should say:
-        //     // "The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo: Piotr J (CC BY-SA 3.0)"
-
-        //     // All of our image descriptions should be like:
-        //     // [Scraped description]. Photo by: [scraped author] ([scraped license type])
-        //     // EG:
-        //     // "The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo: Piotr J (CC BY-SA 3.0)"
-        //     // Use:
-        //     // "The longest plank in the world (2002) is in Poland and measures 36.83 metres (about 120 ft 10 in) long. Wikipedia photo (CC BY-SA 3.0)"
-        //     // Just say "Wikipedia photo" + license type
-
-
-        //     $data = [];
-
-        //     // $this->saveInfo($data);
-
-        // }
+        //
     }
 
-    public function scrapeTag()
+    public function scrapeWithKeyword()
     {
         $client = new Client();
-        $url = 'https://en.wikipedia.org/wiki/' . $this->tag;
+        $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
         $crawler = $client->request('GET', $url);
         $anchor =  $crawler->filter('div.thumbinner a.image')->first();
 
@@ -108,49 +54,10 @@ class TagImageProcessing implements ShouldQueue
         if (count($anchor) > 0) {
             $href = $anchor->extract(['href'])[0];
             $image_page_url = 'https://en.wikipedia.org' . $href;
-            $image_page = $client->request('GET', $image_page_url);
-
-            if ($image_page->filter('.fullImageLink a')->count() > 0) {
-
-                $full_image_link =  $image_page->filter('.fullImageLink a')->first()->extract(['href'])[0];
-                $full_image_link = str_replace('//upload', 'upload', $full_image_link);
-                $full_image_link = 'https://' . $full_image_link;
-            }
-
-            $description = $image_page->filter('td.description');
-            if ($description->count() > 0) {
-                $description =  $description->first()->text();
-                $descriptionText = str_replace('English: ', '', $description);
-            }
-
-
-            $license = $image_page->filter('table.licensetpl span.licensetpl_short');
-            if ($license->count() > 0) {
-                //GFDL
-                $licenseText = $license->first()->text();
-            }
-
-            $author = $image_page->filter('td#fileinfotpl_aut');
-
-            if ($author->count() > 0) {
-                $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
-                $newAuthor = $newAuthor->filter('a');
-                if ($newAuthor->count() > 0) {
-                    $authorText =  $newAuthor->first()->text();
-                }
-            }
-
-            info($this->tag);
-            info($full_image_link);
-            info($descriptionText);
-            info($licenseText);
-            info($authorText);
+            $this->scrpeImagePageUrl($image_page_url);
         }
     }
 
-    public function attachTags()
-    {
-    }
 
     /**
      * Replace tag
@@ -195,12 +102,88 @@ class TagImageProcessing implements ShouldQueue
      */
     public function taskA()
     {
-        $tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
+        $tag = Tags::where('name', strtolower($this->tag->oldnew_tags))->first();
 
         if (!$tag) {
+            Tags::create(['name', strtolower($this->tag->new_tags)]);
         }
     }
 
+    public function scrpeImagePageUrl($image_page_url)
+    {
+        //
+        $client = new Client();
+        +$image_page = $client->request('GET', $image_page_url);
+
+        if ($image_page->filter('.fullImageLink a')->count() > 0) {
+
+            $full_image_link =  $image_page->filter('.fullImageLink a')->first()->extract(['href'])[0];
+            $full_image_link = str_replace('//upload', 'upload', $full_image_link);
+            $full_image_link = 'https://' . $full_image_link;
+        }
+
+        $description = $image_page->filter('td.description');
+        if ($description->count() > 0) {
+            $description =  $description->first()->text();
+            $descriptionText = str_replace('English: ', '', $description);
+        }
+
+
+        $license = $image_page->filter('table.licensetpl span.licensetpl_short');
+        if ($license->count() > 0) {
+            //GFDL
+            $licenseText = $license->first()->text();
+        }
+
+        $author = $image_page->filter('td#fileinfotpl_aut');
+
+        if ($author->count() > 0) {
+            $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
+            $newAuthor = $newAuthor->filter('a');
+            if ($newAuthor->count() > 0) {
+                $authorText =  $newAuthor->first()->text();
+            }
+        }
+
+        info($this->tag);
+        info($full_image_link);
+        info($descriptionText);
+        info($licenseText);
+        info($authorText);
+    }
+
+    public function scrapeFromMediaFile()
+    {
+        $findUrl = '';
+        $image_page_url = '';
+        $client = new Client();
+        $url = $this->tag->wikipedia_page;
+        $crawler = $client->request('GET', $url);
+
+        $thumbinner = $crawler->filter('div.thumbinner');
+        $thumbinner->each(function ($node) use ($findUrl, $image_page_url) {
+            $anchor = $node->filter('a.image');
+            if ($anchor->count() > 0) {
+                $href = $anchor->extract(['href'])[0];
+                if ($href == $findUrl) {
+                    ///wiki/File:Jazzing_orchestra_1921.png
+                    $image_page_url = $href;
+                }
+            }
+        });
+
+        if ($image_page_url != '') {
+            //go to image page url & extract data;
+            $this->scrpeImagePageUrl($image_page_url);
+        }
+    }
+
+    public function scrapeFromWikifile()
+    {
+        //
+
+        $this->scrpeImagePageUrl($this->tag->wikipedia_page);
+    }
     /**
      *
      * task=w: Wikipedia scraping
@@ -213,6 +196,21 @@ class TagImageProcessing implements ShouldQueue
 
     public function taskW()
     {
+        //#/media/File:
+
+        $mediaFile = strpos($this->tag->wikipedia_page, '#/media/File:');
+        $wikiFIle = strpos($this->tag->wikipedia_page, 'wiki/File:');
+
+        if ($mediaFile) {
+            //scrape from media file
+            $this->scrapeFromMediaFile();
+        } else if ($wikiFIle) {
+            //scrape from wiki file
+
+            $this->scrapeFromWikiFile();
+        } else {
+            //scrape from wikipedia with keyword
+        }
     }
 
     /**
@@ -225,11 +223,21 @@ class TagImageProcessing implements ShouldQueue
     public function taskI()
     {
         $tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
-        // if ($tag) {
-        //     $threadTags = DB::table('thread_tag')->where('tag_id', $tag->id)->delete();
 
-        //     $tag->delete();
-        // }
+        $fileExtension = explode('.', $this->tag->image_link);
+        $fileExtension = array_pop($fileExtension);
+        $fileName = md5(time() . uniqid());
+        $fullFileName = $fileName . '.' . $fileExtension;
+        $image_path = 'download/tag/' . $fullFileName;
+        $fullPath = 'public/' . $image_path;
+
+        $this->file_download_curl($fullPath, $this->tag->image_link);
+        if ($tag) {
+            $tag->photo = $fullPath;
+            $tag->save();
+        } else {
+            $newTag = Tags::create(['name' => strtolower($this->tag->old_tag),  'photo' => $fullPath]);
+        }
     }
 
     /**
@@ -253,5 +261,26 @@ class TagImageProcessing implements ShouldQueue
         // $tag->photo = $image_path;
         // $tag->save();
         $this->tag->update($data);
+    }
+
+    public function file_download_curl($fullPath, $full_image_link)
+    {
+        $parts = explode('/', $fullPath);
+        array_pop($parts);
+        $dir = implode('/', $parts);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        $fp = fopen($fullPath, 'wb');
+        $ch = curl_init($full_image_link);
+        curl_setopt($ch, CURLOPT_FILE, $fp);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+        fclose($fp);
     }
 }
