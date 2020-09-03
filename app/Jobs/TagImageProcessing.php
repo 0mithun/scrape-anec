@@ -37,6 +37,7 @@ class TagImageProcessing implements ShouldQueue
     public function handle()
     {
         if ($this->tag->task == 'd') {
+            $this->taskD();
         } else if ($this->tag->task == 'r') {
             $this->taskR();
         } else if ($this->tag->task == 'a') {
@@ -78,10 +79,10 @@ class TagImageProcessing implements ShouldQueue
             }
         }
 
-        info($newUrl);
-        info($image_page_url);
-        info("\n\n");
-        // $this->scrpeImagePageUrl($image_page_url);
+        // info($newUrl);
+        // info($image_page_url);
+        // info("\n\n");
+        $this->scrpeImagePageUrl($image_page_url);
     }
 
 
@@ -93,7 +94,11 @@ class TagImageProcessing implements ShouldQueue
 
     public function taskR()
     {
+        $newTags = $this->tag->new_tags;
+        $splitNewTag = explode(',', $newTags);
+
         $old_tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
+        dump('Old Tag', $old_tag);
         if ($old_tag) {
             $threads = $old_tag->threads;
 
@@ -102,23 +107,42 @@ class TagImageProcessing implements ShouldQueue
             });
             $old_tag->delete();
 
-            $newTags = $this->tag->new_tags;
-            $splitNewTag = explode(',', $newTags);
+            dump('Deleted Old Tag', $this->tag->old_tag);
+
 
             if (count($splitNewTag) > 0) {
+                dump($newTags);
+                dump($splitNewTag);
                 $tag_ids = [];
                 foreach ($splitNewTag as $tag) {
                     $searchTag  = Tags::where('name', strtolower($tag))->first();
+                    dump('Search Tag', $searchTag);
                     if ($searchTag) {
                         $tag_ids[] = $searchTag->id;
                     } else {
                         $newTag = Tags::create(['name' => strtolower($tag)]);
                         $tag_ids[] = $newTag->id;
+                        dump('New Tags', $newTag);
+                        info($newTag);
                     }
                 }
                 $threads->each(function ($thread) use ($tag_ids) {
                     $thread->tags()->syncWithoutDetaching($tag_ids);
                 });
+            }
+        } else {
+            info('Old tag not found');
+            foreach ($splitNewTag as $tag) {
+                $searchTag  = Tags::where('name', strtolower($tag))->first();
+                // dump('Search Tag', $searchTag);
+                if ($searchTag) {
+                    // $tag_ids[] = $searchTag->id;
+                } else {
+                    $newTag = Tags::create(['name' => strtolower($tag)]);
+                    // $tag_ids[] = $newTag->id;
+                    // dump('New Tags', $newTag);
+                    info($newTag);
+                }
             }
         }
     }
@@ -131,6 +155,8 @@ class TagImageProcessing implements ShouldQueue
     public function taskA()
     {
         $tag = Tags::where('name', strtolower($this->tag->new_tags))->first();
+        dump($this->tag);
+        dump($tag);
         if (!$tag) {
             Tags::create(['name', strtolower($this->tag->new_tags)]);
         }
@@ -181,6 +207,8 @@ class TagImageProcessing implements ShouldQueue
         info($descriptionText);
         info($licenseText);
         info($authorText);
+
+        // $this->saveInfo();
     }
 
     public function scrapeFromMediaFile()
@@ -275,17 +303,17 @@ class TagImageProcessing implements ShouldQueue
 
         if ($mediaFile) {
             //scrape from media file
-            // $this->scrapeFromMediaFile();
+            $this->scrapeFromMediaFile();
         } else if ($wikiFIle) {
-            // $this->scrapeFromWikiFile();
+            $this->scrapeFromWikiFile();
         } else if ($archiver) {
-            // $this->scrapeFromArchivo();
+            $this->scrapeFromArchivo();
         } else if ($encodeImagePageUrl) {
-            // $this->scrapeFromEncodedUrl();
+            $this->scrapeFromEncodedUrl();
         } else if ($Dosiero) {
-            // $this->scrapeFromDosiro();
+            $this->scrapeFromDosiro();
         } else if ($mediaArchivo) {
-            // $this->scrapeFromMediaArchivo();
+            $this->scrapeFromMediaArchivo();
         } else {
             //scrape from wikipedia with keyword
             $this->scrapeWithKeyword();
@@ -311,12 +339,16 @@ class TagImageProcessing implements ShouldQueue
         $image_path = 'download/tag/' . $fullFileName;
         $fullPath = 'public/' . $image_path;
 
+        $description = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->new_tags};
+        &linkCode=ur2&tag=anecdotagecom-20";
+
         $this->file_download_curl($fullPath, $this->tag->image_link);
         if ($tag) {
+            $tag->description = $description;
             $tag->photo = $fullPath;
             $tag->save();
         } else {
-            $newTag = Tags::create(['name' => strtolower($this->tag->new_tags),  'photo' => $fullPath]);
+            $newTag = Tags::create(['name' => strtolower($this->tag->new_tags),  'photo' => $fullPath, 'description' => $description]);
         }
     }
 
@@ -329,7 +361,11 @@ class TagImageProcessing implements ShouldQueue
     {
         $tag = Tags::where('name', $this->tag->old_tag)->first();
         if ($tag) {
-            $threadTags = DB::table('thread_tag')->where('tag_id', $tag->id)->delete();
+            $threadTags = DB::table('thread_tag')->where('tag_id', $tag->id)->get(); //23096 -15421
+            info($threadTags);
+            dump($threadTags);
+
+            DB::table('thread_tag')->where('tag_id', $tag->id)->delete();
 
             $tag->delete();
         }
