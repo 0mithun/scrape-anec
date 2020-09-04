@@ -169,7 +169,7 @@ class TagImageProcessing implements ShouldQueue
         $authorText = '';
         $licenseText = '';
         $descriptionText = '';
-        $shopText = '';
+        $shopText =  "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->name}&linkCode=ur2&tag=anecdotagecom-20";
 
         $image_page = $client->request('GET', $image_page_url);
 
@@ -202,13 +202,21 @@ class TagImageProcessing implements ShouldQueue
             }
         }
 
+        $fullDescriptionText = sprintf("%s %s %s %s", $descriptionText, $authorText, $licenseText, $shopText);
         // info($this->tag);
         info($full_image_link);
         info($descriptionText);
         info($licenseText);
         info($authorText);
 
-        // $this->saveInfo();
+        info($fullDescriptionText);
+
+        $data = [
+            'photo' =>  $full_image_link,
+            'description' =>  $fullDescriptionText,
+        ];
+
+        // $this->saveInfo($data);
     }
 
     public function scrapeFromMediaFile()
@@ -341,7 +349,7 @@ class TagImageProcessing implements ShouldQueue
         $image_path = 'download/tag/' . $fullFileName;
         $fullPath = 'public/' . $image_path;
 
-        $description = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->new_tags}&linkCode=ur2&tag=anecdotagecom-20";
+        $description = "{$tag->name} " . "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->new_tags}&linkCode=ur2&tag=anecdotagecom-20";
 
         $this->file_download_curl($fullPath, $this->tag->image_link);
         if ($tag) {
