@@ -332,15 +332,16 @@ class TagImageProcessing implements ShouldQueue
     {
         $tag = Tags::where('name', strtolower($this->tag->new_tags))->first();
 
-        $fileExtension = explode('.', $this->tag->image_link);
-        $fileExtension = array_pop($fileExtension);
+        // $fileExtension = explode('.', $this->tag->image_link);
+        // $fileExtension = array_pop($fileExtension);
+        $fileExtension = $this->getFileExtensionFromURl($this->tag->image_link);
+
         $fileName = md5(time() . uniqid());
         $fullFileName = $fileName . '.' . $fileExtension;
         $image_path = 'download/tag/' . $fullFileName;
         $fullPath = 'public/' . $image_path;
 
-        $description = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->new_tags};
-        &linkCode=ur2&tag=anecdotagecom-20";
+        $description = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->new_tags}&linkCode=ur2&tag=anecdotagecom-20";
 
         $this->file_download_curl($fullPath, $this->tag->image_link);
         if ($tag) {
@@ -398,5 +399,16 @@ class TagImageProcessing implements ShouldQueue
         $error = curl_error($ch);
         curl_close($ch);
         fclose($fp);
+    }
+
+
+    function getFileExtensionFromURl($url)
+    {
+        $file = new \finfo(FILEINFO_MIME);
+        $type = strstr($file->buffer(file_get_contents($url)), ';', true); //Returns something similar to  image/jpg
+
+        $extension = explode('/', $type)[1];
+
+        return $extension;
     }
 }

@@ -30,7 +30,7 @@ class NewTagController extends Controller
         //8122
 
         // $tags =  NewTag::where('task', 'w')->get(); //8122
-        // $tags =  NewTag::where('task', 'i')->get(); //2106
+        $tags =  NewTag::where('task', 'i')->get(); //2106
 
         // return $tags;
 
