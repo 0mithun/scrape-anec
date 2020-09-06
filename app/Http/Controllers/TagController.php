@@ -284,7 +284,7 @@ class TagController extends Controller
     public function scrrapeTagImage()
     {
         // $tags = Tags::where( 'id', "<", 5001 )->get();
-        $tags = Tags::where('id', ">", 5000)->get();
+        $tags = Tags::where('photo', '=', '')->get(); //5285
         // $tags = Tags::all();
         // $tags = Tags::limit( 10 )->get();
 

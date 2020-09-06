@@ -29,8 +29,9 @@ class NewTagController extends Controller
         // $tags = NewTag::where('task', 'w')->limit(2000)->get();
         //8122
 
-        // $tags =  NewTag::where('task', 'w')->get(); //8122
-        $tags =  NewTag::where('task', 'i')->where('amazon_product_link', '=', '')->get(); //2106
+        $tags =  NewTag::where('task', 'w')->get(); //8122
+        // $tags =  NewTag::where('task', 'w')->limit(100)->get(); //8122
+        // $tags =  NewTag::where('task', 'i')->where('amazon_product_link', '=', '')->get(); //2106
 
         // return $tags;
 

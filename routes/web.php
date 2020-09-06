@@ -47,7 +47,7 @@ Route::get('/', function () {
 
 
 //Incomplete
-// Route::get( '/scrape-tags', 'TagController@scrrapeTagImage' );
+// Route::get('/scrape-tags', 'TagController@scrrapeTagImage');
 
 // Route::get('/set-amazon-pixel', 'ScrapeController@amaxonpixel');
 // Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
@@ -57,9 +57,11 @@ Route::get('/', function () {
 
 // Route::get('/new-tag', 'NewTagController@showAllNewTag');
 
+// Route::
+
 
 Route::get('/test', function () {
-    return Tags::where('photo', '!=', '')->get();
+    // return Tags::where('photo', '!=', '')->get();
     // return Tags::where('photo', 'LIKE', '%.com%')->get();
-    // return Tags::where('updated_at', '>', now()->subDays(2))->where('photo', '')->get();
+    return Tags::where('updated_at', '>', now()->subHour(5))->get();
 });

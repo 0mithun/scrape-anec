@@ -24,7 +24,7 @@ class TagImageProcessing implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(NewTag $tag)
+    public function __construct(Tags $tag)
     {
         $this->tag = $tag;
     }
@@ -36,30 +36,33 @@ class TagImageProcessing implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->tag->task == 'd') {
-            $this->taskD();
-        } else if ($this->tag->task == 'r') {
-            $this->taskR();
-        } else if ($this->tag->task == 'a') {
-            $this->taskA();
-        } else if ($this->tag->task == 'w') {
-            $this->taskW();
-        } else if ($this->tag->task == 'i') {
-            $this->taskI();
-        }
+        // if ($this->tag->task == 'd') {
+        //     $this->taskD();
+        // } else if ($this->tag->task == 'r') {
+        //     $this->taskR();
+        // } else if ($this->tag->task == 'a') {
+        //     $this->taskA();
+        // } else if ($this->tag->task == 'w') {
+        //     $this->taskW();
+        // } else if ($this->tag->task == 'i') {
+        //     $this->taskI();
+        // }
+        $this->scrapeWithKeyword();
     }
 
     public function scrapeWithKeyword()
     {
 
-        $splitKeyword = explode('/', $this->tag->wikipedia_page);
+        // $splitKeyword = explode('/', $this->tag->wikipedia_page);
 
 
-        $keyword = array_pop($splitKeyword);
+        // $keyword = array_pop($splitKeyword);
+        $keyword = $this->tag->name;
 
         $keyword = ucwords($keyword);
         $keyword = str_replace(' ', '_', $keyword);
-        $newUrl = implode('/', $splitKeyword) . '/' . $keyword;
+        // $newUrl = implode('/', $splitKeyword) . '/' . $keyword;
+        $newUrl = "https://en.wikipedia.org/wiki" . '/' . $keyword;
 
         $client = new Client();
         // $url = 'https://en.wikipedia.org/wiki/' . $this->tag->name;
@@ -71,17 +74,14 @@ class TagImageProcessing implements ShouldQueue
             $href = $infobox->extract(['href'])[0];
             $image_page_url = 'https://en.wikipedia.org' . $href;
         } else {
-            //mw-content-text
             $thumbinner =  $crawler->filter('div.thumbinner a.image')->first();
             if (count($thumbinner) > 0) {
                 $href = $thumbinner->extract(['href'])[0];
                 $image_page_url = 'https://en.wikipedia.org' . $href;
             }
         }
-
-        // info($newUrl);
-        // info($image_page_url);
-        // info("\n\n");
+        // dump($newUrl);
+        // dump($image_page_url);
         $this->scrpeImagePageUrl($image_page_url);
     }
 
@@ -98,7 +98,7 @@ class TagImageProcessing implements ShouldQueue
         $splitNewTag = explode(',', $newTags);
 
         $old_tag = Tags::where('name', strtolower($this->tag->old_tag))->first();
-        dump('Old Tag', $old_tag);
+        // dump('Old Tag', $old_tag);
         if ($old_tag) {
             $threads = $old_tag->threads;
 
@@ -179,44 +179,63 @@ class TagImageProcessing implements ShouldQueue
             $full_image_link = 'https://' . $full_image_link;
         }
 
-        $description = $image_page->filter('td.description');
-        if ($description->count() > 0) {
-            $description =  $description->first()->text();
-            $descriptionText = str_replace('English: ', '', $description);
-        }
+        if (isset($full_image_link)) {
 
-
-        $license = $image_page->filter('table.licensetpl span.licensetpl_short');
-        if ($license->count() > 0) {
-            //GFDL
-            $licenseText = $license->first()->text();
-        }
-
-        $author = $image_page->filter('td#fileinfotpl_aut');
-
-        if ($author->count() > 0) {
-            $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
-            $newAuthor = $newAuthor->filter('a');
-            if ($newAuthor->count() > 0) {
-                $authorText =  $newAuthor->first()->text();
+            $description = $image_page->filter('div.description');
+            if ($description->count() > 0) {
+                $description =  $description->first()->text();
+                $descriptionText = str_replace('English: ', '', $description);
             }
+            $license = $image_page->filter('table.licensetpl span.licensetpl_short');
+            if ($license->count() > 0) {
+                //GFDL
+                // $licenseText = $license->first()->text();
+
+                $acceptedLicenses = [
+                    'CC BY-SA 1.0',
+                    'CC BY-SA 1.5',
+                    'CC BY 1.0',
+                    'CC BY 1.5',
+                    'CC BY-SA 2.5',
+                    'CC BY 2.0 ',
+                    'CC BY 2.5 ',
+                    'CC BY-SA 3.0',
+                    'CC BY 3.0',
+                    'Public domain',
+                    'CC BY-SA 4.0',
+                    'CC BY 4.0',
+                ];
+
+                if (in_array($license->first()->text(), $acceptedLicenses)) {
+                    $licenseText = $license->first()->text();
+                }
+            }
+            $author = $image_page->filter('td#fileinfotpl_aut');
+
+            if ($author->count() > 0) {
+                $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
+                $newAuthor = $newAuthor->filter('a');
+                if ($newAuthor->count() > 0) {
+                    $authorText =  $newAuthor->first()->text();
+                }
+            }
+            $fullDescriptionText = sprintf("%s %s %s %s", $descriptionText, $authorText, $licenseText, $shopText);
+            // info($this->tag);
+            // info($full_image_link);
+            // info($descriptionText);
+            // info($license->first()->text());
+            // info($licenseText);
+            // info($authorText);
+
+            // info($fullDescriptionText);
+
+            $data = [
+                'photo' =>  $full_image_link,
+                'description' =>  $fullDescriptionText,
+            ];
+
+            $this->saveInfo($data);
         }
-
-        $fullDescriptionText = sprintf("%s %s %s %s", $descriptionText, $authorText, $licenseText, $shopText);
-        // info($this->tag);
-        info($full_image_link);
-        info($descriptionText);
-        info($licenseText);
-        info($authorText);
-
-        info($fullDescriptionText);
-
-        $data = [
-            'photo' =>  $full_image_link,
-            'description' =>  $fullDescriptionText,
-        ];
-
-        // $this->saveInfo($data);
     }
 
     public function scrapeFromMediaFile()
@@ -307,6 +326,7 @@ class TagImageProcessing implements ShouldQueue
         $encodeImagePageUrl = strpos($this->tag->wikipedia_page, 'wiki/File%3');
         $Dosiero = strpos($this->tag->wikipedia_page, 'wiki/Dosiero:');
         $mediaArchivo = strpos($this->tag->wikipedia_page, '#/media/Archivo:');
+        $wikiFail = strpos($this->tag->wikipedia_page, 'wiki/Fail:');
 
 
         if ($mediaFile) {
@@ -322,6 +342,9 @@ class TagImageProcessing implements ShouldQueue
             $this->scrapeFromDosiro();
         } else if ($mediaArchivo) {
             $this->scrapeFromMediaArchivo();
+        } else if ($wikiFail) {
+            //
+            $this->scrpeImagePageUrl($this->tag->wikipedia_page);
         } else {
             //scrape from wikipedia with keyword
             $this->scrapeWithKeyword();
@@ -382,7 +405,18 @@ class TagImageProcessing implements ShouldQueue
 
     public function saveInfo($data)
     {
-        // $tag = Tags::where('id', $this->tag->id)->first();
+        // $tag = Tags::where('name', $this->tag->new_tags)->first();
+        // if ($tag) {
+        //     $tag->update($data);
+        // } else {
+        //     $tag = Tags::create([
+        //         'name'  => $this->tag->new_tags,
+        //         'photo' => $data['photo'],
+        //         'description' => $data['description'],
+        //     ]);
+
+        //     info('Creating tag', $tag->name);
+        // }
         // $tag->photo = $image_path;
         // $tag->save();
         $this->tag->update($data);
