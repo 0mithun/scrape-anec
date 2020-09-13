@@ -1,7 +1,9 @@
 <?php
 
 use App\Tags;
+use App\User;
 use Illuminate\Support\Facades\Route;
+use App\Notifications\TestEmailNotification;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +54,6 @@ Route::get('/', function () {
 // Route::get('/set-amazon-pixel', 'ScrapeController@amaxonpixel');
 // Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
 // Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
-
 // Route::get('/tag-scrape', 'TagController@scrapeTag');
 
 // Route::get('/new-tag', 'NewTagController@showAllNewTag');
@@ -63,5 +64,8 @@ Route::get('/', function () {
 Route::get('/test', function () {
     // return Tags::where('photo', '!=', '')->get();
     // return Tags::where('photo', 'LIKE', '%.com%')->get();
-    return Tags::where('updated_at', '>', now()->subHour(5))->get();
+    // return Tags::where('updated_at', '>', now()->subHour(5))->get();
+    $user = User::first();
+
+    $user->notify(new TestEmailNotification);
 });
