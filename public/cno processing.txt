@@ -1,0 +1,68 @@
+Ca
+Did you see sheet#2?
+CNO list
+
+If thread body contains string in COL A, set CNO using COL B
+
+
+
+
+Many threads still WITHOUT image.
+Can we do this:
+Use same spreadsheet LIST to get more images from Wikipedia.
+For every thread:
+
+If no image:
+	{
+	For every NAME in list:
+		{
+		if title contains NAME:
+			{
+			try scrape 1st image from wikipedia.org/wiki/NAME;
+			flag "success" or "error";
+			continue;
+			}
+		}
+	For every NAME in list:
+		{
+		if body contains NAME:
+			{
+			try scrape 1st image from wikipedia.org/wiki/NAME;
+			flag "success" or "error";
+			continue;
+			}
+		}
+
+
+
+        Let's also add tag=celebrities if CNO=C
+
+
+
+Check thread title first, then body:
+
+If thread title contains any NAME:
+1) set CNO (from COL 😎
+2) add tag=celebrities ( if CNO=C )
+3) try to grab Wikipedia image (if thread has no image)
+4) continue...
+
+Else (title contains no NAME)
+So look for a match in body text
+If thread body contains any NAME:
+(same process 1-4)
+
+
+
+Hey... another thing to run locally... insert amazon links for all italicized text (mostly movies, magazines, TV shows)...
+
+In any thread (body) where text is italicized (surrounded by <i></i>, like... <i>Some text here</i>), do this:
+
+1) strip <a href=... > before <i>
+(in case link already exists)
+2) strip <a href=... > after <i>
+(in case link already exists)
+3) insert </a> before </i>:
+4) insert this after <i>:
+
+<a target="_blank" href="http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords=Some+text+here&linkCode=ur2&tag=anecdotagecom-20">

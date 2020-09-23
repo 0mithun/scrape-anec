@@ -104,10 +104,6 @@ class SetPixelJob implements ShouldQueue
     public function getImageColorAttribute($image_path)
     {
         if ($image_path != '') {
-
-            // $image_path = asset($image_path);
-            // dump($image_path);
-
             $splitName = explode('.', $image_path);
             $extension = strtolower(array_pop($splitName));
 

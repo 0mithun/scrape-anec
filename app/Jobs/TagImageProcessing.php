@@ -47,7 +47,14 @@ class TagImageProcessing implements ShouldQueue
         // } else if ($this->tag->task == 'i') {
         //     $this->taskI();
         // }
-        $this->scrapeWithKeyword();
+        // $this->scrapeWithKeyword();
+        $this->updatePhoto();
+    }
+
+    public function updatePhoto()
+    {
+        $newPhotoUrl = str_replace("//https:", '//', $this->tag->photo);
+        $this->tag->save();
     }
 
     public function scrapeWithKeyword()

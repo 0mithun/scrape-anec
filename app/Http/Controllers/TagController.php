@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\TagImageProcessing;
+use App\NewTag;
 use Goutte\Client;
 use App\Tags;
+use phpDocumentor\Reflection\DocBlock\Tag;
 
 class TagController extends Controller
 {
@@ -341,6 +343,17 @@ class TagController extends Controller
             //     dump($licenseText);
             //     dump($authorText);
             // }
+        }
+    }
+
+    public function updatePhotoUrl()
+    {
+        $tags = Tags::where('photo', 'LIKE', "%//https:%")->get();
+
+        // return $tags;
+
+        foreach ($tags as $tag) {
+            dispatch(new TagImageProcessing($tag));
         }
     }
 }

@@ -67,5 +67,12 @@ Route::get('/test', function () {
     // return Tags::where('updated_at', '>', now()->subHour(5))->get();
     $user = User::first();
 
-    $user->notify(new TestEmailNotification);
+    // $user->notify(new TestEmailNotification);
 });
+
+
+// Route::get('update-photo', 'TagController@updatePhotoUrl');
+
+
+// Route::get('/set-cno', 'CnoController@setCNO');
+// Route::get('/update-cno', 'CnoController@updateCNO');
