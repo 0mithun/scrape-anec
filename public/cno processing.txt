@@ -66,3 +66,10 @@ In any thread (body) where text is italicized (surrounded by <i></i>, like... <i
 4) insert this after <i>:
 
 <a target="_blank" href="http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords=Some+text+here&linkCode=ur2&tag=anecdotagecom-20">
+
+
+
+
+
+
+v=DKIM1; h=sha256; k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvyY9XYk2eiZ7u/DSkzC6GNvrzsTravQ6lXRCDGROGUBtl3gm2Gu6inyVTCvs3htXb9UhLlo4iUnBFKVwb2nhdkNyhziefzD0bT7K5Fw1rHb0LZoYntv9EqK83kReOYmTl5FZKPqnPlnxwL4yz7Roc7df9mIlx+80tcTGXp+fNGMGtt8PennRAm7WjEnwbM8pTryu0SAzjg38xkyI3GLXrcl7WXGnaxHfXnSr82lFYnViUviWSZ69f2okiDCwEnMd1C+56wuPsptFJRnxqzjUrL7Y9YdnLDFNU3dqgNuXStIJXu/4wi7p7fwAUTqWf5n+dpPpILTKQP51qrp+2TV2iwIDAQAB
