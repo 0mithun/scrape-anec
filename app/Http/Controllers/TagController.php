@@ -377,9 +377,9 @@ class TagController extends Controller {
      * @return mixed
      */
     public function updatePhotoUrl() {
-        $tags = Tags::where( 'photo', 'LIKE', '%//https:%' )->get();
+        $tags = Tags::where( 'photo', 'LIKE', 'public/%' )->get();
 
-        return $tags;
+// return $tags;
 
         foreach ( $tags as $tag ) {
             dispatch( new TagImageProcessing( $tag ) );

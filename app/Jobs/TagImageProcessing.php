@@ -63,7 +63,8 @@ class TagImageProcessing implements ShouldQueue {
     }
 
     public function updatePhoto() {
-        $newPhotoUrl = str_replace( '//https:', '//', $this->tag->photo );
+        // $newPhotoUrl = str_replace( '//https:', '//', $this->tag->photo );
+        $newPhotoUrl = str_replace( 'public/', '', $this->tag->photo );
         $this->tag->photo = $newPhotoUrl;
         $this->tag->save();
     }
@@ -389,21 +390,27 @@ class TagImageProcessing implements ShouldQueue {
             //scrape from media file
             $this->scrapeFromMediaFile();
         } else
+
         if ( $wikiFIle ) {
             $this->scrapeFromWikiFile();
         } else
+
         if ( $archiver ) {
             $this->scrapeFromArchivo();
         } else
+
         if ( $encodeImagePageUrl ) {
             $this->scrapeFromEncodedUrl();
         } else
+
         if ( $Dosiero ) {
             $this->scrapeFromDosiro();
         } else
+
         if ( $mediaArchivo ) {
             $this->scrapeFromMediaArchivo();
         } else
+
         if ( $wikiFail ) {
             //
             $this->scrpeImagePageUrl( $this->tag->wikipedia_page );
