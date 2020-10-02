@@ -207,3 +207,5 @@ Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 // Route::get( '/extract-i', 'ThreadController@replaceAmazonLink' );
 
 // Route::get('/upvote', 'ThreadController@upvote');
+
+Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
