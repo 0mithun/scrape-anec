@@ -208,4 +208,7 @@ Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 
 // Route::get('/upvote', 'ThreadController@upvote');
 
-Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
+// Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
+
+// Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
+Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );

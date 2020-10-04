@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RemoveDuplicateItem;
 use App\Jobs\TagImageProcessing;
 use App\Jobs\UpdateAmazonLink;
 use App\NewTag;
@@ -131,6 +132,21 @@ class TagController extends Controller {
 
         foreach ( $tags as $tag ) {
             dispatch( new UpdateAmazonLink( $tag ) );
+        }
+
+    }
+
+    /**
+     * @return mixed
+     */
+    public function removeDuplicate() {
+
+        $tags = Tags::where( 'name', 'LIKE', '% ' )->get();
+
+// return $tags;
+
+        foreach ( $tags as $tag ) {
+            dispatch( new RemoveDuplicateItem( $tag ) );
         }
 
     }
