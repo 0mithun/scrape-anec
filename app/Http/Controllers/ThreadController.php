@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\InsertAmazonLink;
+use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\StripSlugTagJob;
 use App\Jobs\UpdateTagNames;
 use App\Jobs\UpvoteJob;
@@ -383,11 +384,12 @@ class ThreadController extends Controller {
     }
 
     public function updateTagNameList() {
-        //update thread
+
+//update thread
 
         $threads = Thread::all();
 
-// $threads = Thread::where('id', '<', 100)->get();
+// $threads = Thread::where( 'id', '<', 100 )->get();
 
         foreach ( $threads as $thread ) {
             // dump($thread);
@@ -426,6 +428,18 @@ class ThreadController extends Controller {
 
         foreach ( $threads as $thread ) {
             dispatch( new StripSlugTagJob( $thread ) );
+        }
+
+    }
+
+    public function removeDuplicateTagId() {
+
+// $thread_tags = DB::table( 'thread_tag' )->where( 'id', '<', 150000 )->get();
+
+        $thread_tags = DB::table( 'thread_tag' )->where( 'id', '>', 149990 )->get();
+
+        foreach ( $thread_tags as $thread_tag ) {
+            dispatch( new RemoveDuplicateThreadTag( $thread_tag ) );
         }
 
     }

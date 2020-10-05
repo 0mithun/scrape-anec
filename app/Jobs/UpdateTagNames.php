@@ -9,18 +9,19 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateTagNames implements ShouldQueue
-{
+class UpdateTagNames implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var mixed
+     */
     protected $thread;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Thread $thread)
-    {
+    public function __construct( Thread $thread ) {
         $this->thread = $thread;
     }
 
@@ -29,13 +30,17 @@ class UpdateTagNames implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
-    {
-        $tags = $this->thread->tags->pluck('name')->all();
-        if (count($tags) > 0) {
-            $tagNameList = implode(',', $tags);
+    public function handle() {
+        $tags = $this->thread->tags->pluck( 'name' )->all();
 
-            $this->thread->update(['tag_names' => $tagNameList]);
+        dump( $tags );
+
+        if ( count( $tags ) > 0 ) {
+            $tagNameList = implode( ',', $tags );
+
+            $this->thread->update( ['tag_names' => $tagNameList] );
         }
+
     }
+
 }

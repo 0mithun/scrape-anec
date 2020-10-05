@@ -194,7 +194,7 @@ Route::get( '/test', function () {
     return response()->stream( $callback, 200, $headers );
 } );
 
-Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
+// Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 
 // Route::get('/set-cno', 'CnoController@setCNO');
 
@@ -202,7 +202,7 @@ Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 
 // Route::get('/update-amazon-link', 'ThreadController@updateAmazonLink');
 
-// Route::get('/update-tag-names', 'ThreadController@updateTagNameList');
+Route::get( '/update-tag-names', 'ThreadController@updateTagNameList' );
 
 // Route::get( '/extract-i', 'ThreadController@replaceAmazonLink' );
 
@@ -211,4 +211,7 @@ Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 // Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
 
 // Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
-Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );
+
+// Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );
+
+// Route::get( '/remove-duplicate-tag-id', 'ThreadController@removeDuplicateTagId' );
