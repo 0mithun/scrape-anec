@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\InsertAmazonLink;
+use App\Jobs\NewScrape;
 use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\StripSlugTagJob;
 use App\Jobs\UpdateTagNames;
@@ -440,6 +441,38 @@ class ThreadController extends Controller {
 
         foreach ( $thread_tags as $thread_tag ) {
             dispatch( new RemoveDuplicateThreadTag( $thread_tag ) );
+        }
+
+    }
+
+    /**
+     * @return mixed
+     */
+    public function newWikiScrape() {
+
+        $threads = Thread::where( function ( $query ) {
+            $query->whereNotNull( 'wiki_image_path' )
+
+// ->orWhere( function ( $q ) {
+
+//     $q->whereNull( 'other_image_path' )
+
+//         ->whereNull( 'amazon_image_path' )
+
+//         ->whereNull( 'image_path' )
+
+//     ;
+            // } )
+            ;
+        } )
+        // ->limit( '100' )
+            ->get()
+        ;
+
+// return $threads;
+
+        foreach ( $threads as $thread ) {
+            dispatch( new NewScrape( $thread ) );
         }
 
     }

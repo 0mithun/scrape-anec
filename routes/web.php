@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ThreadController;
 use App\Notifications\TestEmailNotification;
 use App\Tags;
 use App\Thread;
@@ -202,7 +203,7 @@ Route::get( '/test', function () {
 
 // Route::get('/update-amazon-link', 'ThreadController@updateAmazonLink');
 
-Route::get( '/update-tag-names', 'ThreadController@updateTagNameList' );
+// Route::get( '/update-tag-names', 'ThreadController@updateTagNameList' );
 
 // Route::get( '/extract-i', 'ThreadController@replaceAmazonLink' );
 
@@ -214,4 +215,6 @@ Route::get( '/update-tag-names', 'ThreadController@updateTagNameList' );
 
 // Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );
 
-// Route::get( '/remove-duplicate-tag-id', 'ThreadController@removeDuplicateTagId' );
+// Route::get( '/remove-duplicate-tag-id', 'ThreadController@removeDuplicateTagId' )
+
+Route::get( '/new-wiki-scrape', 'ThreadController@newWikiScrape' );
