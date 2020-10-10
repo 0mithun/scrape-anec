@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Thread;
+use DB;
 use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -73,8 +74,10 @@ class NewScrape implements ShouldQueue {
 // }
 
 // dump( $image_page_url );
-        // dump( $this->thread->wiki_image_page_url );
 
+// dump( $this->thread->wiki_image_page_url );
+        // info( $this->thread->id );
+        DB::table( 'image_page_not_found' )->insert( ['thread_id' => $this->thread->id, 'image_path' => $this->thread->wiki_image_path] );
         $image_page = $client->request( 'GET', $this->thread->wiki_image_page_url );
 
 // $main_page_url = $image_page->filter( 'div#mw-imagepage-section-globalusage li.mw-gu-onwiki-en_wikiquote_org' )->count();
@@ -192,43 +195,49 @@ class NewScrape implements ShouldQueue {
 
 // }
 
-        $full_image_link = str_replace( '//upload', 'upload', $full_image_link );
+        if ( isset( $full_image_link ) ) {
 
-        $full_image_link = 'https://' . $full_image_link;
+            $full_image_link = str_replace( '//upload', 'upload', $full_image_link );
 
-        $description = $image_page->filter( 'td.description' );
+            $full_image_link = 'https://' . $full_image_link;
 
-        $description = ( $description->count() > 0 ) ? $description->first()->text() : '';
+            $description = $image_page->filter( 'td.description' );
 
-        $license = $image_page->filter( 'table.licensetpl span.licensetpl_short' );
+            $description = ( $description->count() > 0 ) ? $description->first()->text() : '';
 
-        $license = ( $license->count() > 0 ) ? $license->first()->text() : '';
+            $license = $image_page->filter( 'table.licensetpl span.licensetpl_short' );
 
-        $description = str_replace( 'English: ', '', $description );
+            $license = ( $license->count() > 0 ) ? $license->first()->text() : '';
 
-        $description = $description . '(' . $license . ')';
+            $description = str_replace( 'English: ', '', $description );
 
-        if ( $full_image_link != '' ) {
-            $pixel_color = $this->getImageColorAttribute( $full_image_link );
+            $description = $description . '(' . $license . ')';
 
-            $data = [
+            if ( $full_image_link != '' ) {
+                $pixel_color = $this->getImageColorAttribute( $full_image_link );
 
-                'wiki_info_page_url'          => $wiki_info_page_url,
+                $data = [
 
-                // 'wiki_image_page_url' => $image_page_url,
+                    'wiki_info_page_url'          => $wiki_info_page_url,
 
-                'wiki_image_url'              => $full_image_link,
+                    // 'wiki_image_page_url' => $image_page_url,
 
-                'wiki_image_path'             => $full_image_link,
-                'wiki_image_path_pixel_color' => $pixel_color,
+                    'wiki_image_url'              => $full_image_link,
 
-                'description'                 => $description,
+                    'wiki_image_path'             => $full_image_link,
+                    'wiki_image_path_pixel_color' => $pixel_color,
 
-                'image_saved'                 => false,
+                    'description'                 => $description,
 
-            ];
-            dump( $full_image_link );
-            $this->saveInfo( $data );
+                    'image_saved'                 => false,
+
+                ];
+                dump( $full_image_link );
+                $this->saveInfo( $data );
+            }
+
+        } else {
+            dump( 'Full Image Link Not Found', $this->thread->id );
         }
 
     }

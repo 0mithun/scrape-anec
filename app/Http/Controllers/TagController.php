@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\NewTagScraping;
 use App\Jobs\RemoveDuplicateItem;
 use App\Jobs\TagImageProcessing;
 use App\Jobs\UpdateAmazonLink;
@@ -147,6 +148,22 @@ class TagController extends Controller {
 
         foreach ( $tags as $tag ) {
             dispatch( new RemoveDuplicateItem( $tag ) );
+        }
+
+    }
+
+    /**
+     * @return mixed
+     */
+    public function newTagScrape() {
+        $tags = Tags::where( 'photo', 'NOT LIKE', '%download%"' )->get();
+
+// return $tags;
+
+//SELECT * FROM `tags` WHERE photo NOT like "%download%"
+
+        foreach ( $tags as $tag ) {
+            dispatch( new NewTagScraping( $tag ) );
         }
 
     }

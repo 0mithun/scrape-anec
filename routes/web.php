@@ -217,4 +217,10 @@ Route::get( '/test', function () {
 
 // Route::get( '/remove-duplicate-tag-id', 'ThreadController@removeDuplicateTagId' )
 
-Route::get( '/new-wiki-scrape', 'ThreadController@newWikiScrape' );
+// Route::get( '/new-wiki-scrape', 'ThreadController@newWikiScrape' );
+
+Route::get( '/image-page-not-found', function () {
+    return DB::table( 'image_page_not_found' )->get();
+} );
+
+Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
