@@ -223,4 +223,6 @@ Route::get( '/image-page-not-found', function () {
     return DB::table( 'image_page_not_found' )->get();
 } );
 
-Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
+// Route::get( 'new-tag-scrape', 'TagController@newTagScrape' )
+
+Route::get( '/remove-junk-tags', 'TagController@removeJunkTags' );

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\NewTagScraping;
 use App\Jobs\RemoveDuplicateItem;
+use App\Jobs\RemoveJunkTags;
 use App\Jobs\TagImageProcessing;
 use App\Jobs\UpdateAmazonLink;
 use App\NewTag;
@@ -164,6 +165,19 @@ class TagController extends Controller {
 
         foreach ( $tags as $tag ) {
             dispatch( new NewTagScraping( $tag ) );
+        }
+
+    }
+
+    public function removeJunkTags() {
+
+//
+
+        // $tags = Tags::where( 'id', '>', 101032 )->where( 'id', '<', 101566 )->get();
+        $tags = Tags::where( 'id', 101567 )->get();
+
+        foreach ( $tags as $tag ) {
+            dispatch( new RemoveJunkTags( $tag ) );
         }
 
     }
