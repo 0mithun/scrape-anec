@@ -211,7 +211,7 @@ Route::get( '/test', function () {
 
 // Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
 
-// Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
+Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
 
 // Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );
 
@@ -223,6 +223,8 @@ Route::get( '/image-page-not-found', function () {
     return DB::table( 'image_page_not_found' )->get();
 } );
 
-// Route::get( 'new-tag-scrape', 'TagController@newTagScrape' )
+Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
 
-Route::get( '/remove-junk-tags', 'TagController@removeJunkTags' );
+// Route::get( '/remove-junk-tags', 'TagController@removeJunkTags' );
+
+// Route::get('/tag-html-descriptoin','TagController@tagHtmlDescription');

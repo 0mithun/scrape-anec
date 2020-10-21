@@ -42,7 +42,7 @@ class NewTagScraping implements ShouldQueue {
     public function scrapeWithKeyword() {
         $keyword = $this->tag->name;
 
-        dump( $keyword );
+        // dump( $keyword );
 
         $keyword = ucwords( $keyword );
         $keyword = str_replace( ' ', '_', $keyword );
@@ -76,9 +76,10 @@ class NewTagScraping implements ShouldQueue {
         $client = new Client();
 
         $authorText = '';
-        $licenseText = '';
+        $htmlLicense = '';
         $descriptionText = '';
-        $shopText = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->name}&linkCode=ur2&tag=anecdotagecom-20";
+        // $shopText = "http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords={$this->tag->name}&linkCode=ur2&tag=anecdotagecom-20";
+        $shopText = '<a class="btn btn-xs btn-primary" href="http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords='.$this->tag->name.'&linkCode=ur2&tag=anecdotage01-20">Shop for '.$this->tag->name.'</a>';
 
         $image_page = $client->request( 'GET', $image_page_url );
 
@@ -94,9 +95,6 @@ class NewTagScraping implements ShouldQueue {
         $full_image_link = 'https://' . $full_image_link;
 
         if ( isset( $full_image_link ) ) {
-
-            if ( $this->tag->photo == '' || $this->tag->photo == NULL ) {
-
                 $description = $image_page->filter( 'div.description' );
 
                 if ( $description->count() > 0 ) {
@@ -107,24 +105,56 @@ class NewTagScraping implements ShouldQueue {
                 $license = $image_page->filter( 'table.licensetpl span.licensetpl_short' );
 
                 if ( $license->count() > 0 ) {
-                    $acceptedLicenses = [
+                    $saLicenseType = [
                         'CC BY-SA 1.0',
                         'CC BY-SA 1.5',
+                        'CC BY-SA 2.5',
+                        'CC BY-SA 3.0',
+                        'CC BY-SA 4.0',
+                    ];
+                    $nonSaLicenseType = [
                         'CC BY 1.0',
                         'CC BY 1.5',
-                        'CC BY-SA 2.5',
                         'CC BY 2.0 ',
                         'CC BY 2.5 ',
-                        'CC BY-SA 3.0',
                         'CC BY 3.0',
-                        'Public domain',
-                        'CC BY-SA 4.0',
                         'CC BY 4.0',
                     ];
 
-                    if ( in_array( $license->first()->text(), $acceptedLicenses ) ) {
-                        $licenseText = $license->first()->text();
+                    $licenseText = $license->first()->text();
+                    if( $licenseText == 'Public domain'){
+                        $htmlLicense = 'Public domain';
                     }
+                    else if ( in_array( $licenseText, $saLicenseType ) ) {
+                       if( \preg_match('&(\d)\.?\d?&',$licenseText, $matches)){
+
+                           $htmlLicense = '<a href="https://creativecommons.org/licenses/by-sa/'.$matches[0].'">'.$licenseText.'</a>';
+                       }
+                    }else if ( in_array( $licenseText, $nonSaLicenseType ) ) {
+                        if(\preg_match('&(\d)\.?\d?&',$licenseText, $matches)){
+
+                            $htmlLicense = '<a href="https://creativecommons.org/licenses/by/'.$matches[0].'">'.$licenseText.'</a>';
+                        }
+                    }
+                    
+                    if($htmlLicense != ''){
+                        \dump($htmlLicense);
+                    }else{
+                        \dump('other license');
+                    }
+
+                     // https://creativecommons.org/licenses/by/1.0/
+                        // https://creativecommons.org/licenses/by/2.0/
+                        // https://creativecommons.org/licenses/by/2.5/
+                        // https://creativecommons.org/licenses/by/3.0/
+                        // https://creativecommons.org/licenses/by/4.0/
+                        // https://creativecommons.org/licenses/by-sa/1.0/
+                        // https://creativecommons.org/licenses/by-sa/2.0/
+                        // https://creativecommons.org/licenses/by-sa/2.5/
+                        // https://creativecommons.org/licenses/by-sa/3.0/
+                        // https://creativecommons.org/licenses/by-sa/4.0/
+                        // 'Public domain', -- No link needed
+                        // 'CC BY-SA 1.5' -- Not EXISTS, USE: 1.0
 
                 }
 
@@ -137,23 +167,15 @@ class NewTagScraping implements ShouldQueue {
                     if ( $newAuthor->count() > 0 ) {
                         $authorText = $newAuthor->first()->text();
                     }
-
                 }
 
-                $fullDescriptionText = sprintf( '%s %s %s %s', $descriptionText, $authorText, $licenseText, $shopText );
+                $fullDescriptionText = sprintf( '%s %s %s %s', $descriptionText, $authorText, $htmlLicense, $shopText );
                 $data = [
                     'photo'       => $full_image_link,
                     'description' => $fullDescriptionText,
                 ];
                 $this->saveInfo( $data );
-
-            } else {
-                $data = [
-                    'photo' => $full_image_link,
-                ];
-                $this->saveInfo( $data );
-
-            }
+             
 
         }
 
@@ -173,7 +195,6 @@ class NewTagScraping implements ShouldQueue {
     function getFileExtensionFromURl( $url ) {
         $file = new \finfo( FILEINFO_MIME );
         $type = strstr( $file->buffer( file_get_contents( $url ) ), ';', true ); //Returns something similar to  image/jpg
-
         $extension = explode( '/', $type )[1];
 
         return $extension;

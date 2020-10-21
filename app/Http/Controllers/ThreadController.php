@@ -423,10 +423,11 @@ class ThreadController extends Controller {
     }
 
     public function stripSlug() {
-        $threads = Thread::all();
+        // $threads = Thread::all();
 
-// $threads = Thread::where( 'id', '<', 5 )->get();
+$threads = Thread::where( 'slug', 'LIKE', "%ltigt%" )->get();
 
+return $threads;
         foreach ( $threads as $thread ) {
             dispatch( new StripSlugTagJob( $thread ) );
         }

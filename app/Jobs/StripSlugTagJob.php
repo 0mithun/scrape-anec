@@ -34,11 +34,11 @@ class StripSlugTagJob implements ShouldQueue {
 
         $slug = str_slug( strip_tags( $this->thread->title ) );
 
-        if ( Thread::whereSlug( $slug )->exists() ) {
-            $slug = $slug . '-' . $this->thread->id;
-        }
-
-        dump( $slug );
+        
+        $slug = \str_replace('ltigt','',$slug);
+            if ( Thread::whereSlug( $slug )->exists() ) {
+                $slug = $slug . '-' . $this->thread->id;
+            }
 
         $this->thread->slug = $slug;
         $this->thread->save();
