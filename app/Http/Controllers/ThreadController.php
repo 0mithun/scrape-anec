@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\InsertAmazonLink;
-use App\Jobs\NewScrape;
-use App\Jobs\RemoveDuplicateThreadTag;
-use App\Jobs\StripSlugTagJob;
-use App\Jobs\UpdateTagNames;
-use App\Jobs\UpvoteJob;
-use App\Thread;
 use DB;
+use App\Thread;
+use App\Jobs\NewScrape;
+use App\Jobs\UpvoteJob;
+use App\Jobs\UpdateTagNames;
 use Illuminate\Http\Request;
+use App\Jobs\StripSlugTagJob;
+use App\Jobs\InsertAmazonLink;
+use App\Jobs\ReplaceFirstPJob;
+use App\Jobs\ReplaceSourceJob;
+use App\Jobs\RemoveDuplicateThreadTag;
+use App\Jobs\ScrapeThreadImageWithNameJob;
 
 class ThreadController extends Controller {
     /**
@@ -476,6 +479,35 @@ return $threads;
             dispatch( new NewScrape( $thread ) );
         }
 
+    }
+
+    public function replaceSource(){
+        $threads = Thread::where('source','!=','')->get();
+   
+
+        foreach($threads as $thread){
+            \dispatch(new ReplaceSourceJob($thread));
+        }
+        
+    }
+
+    public function replaceFirstP(){
+        $threads = Thread::where('body','LIKE',"<p>%")->get();
+        return $threads;
+
+        foreach($threads as $thread){
+            \dispatch(new ReplaceFirstPJob($thread));
+        }
+    }
+
+    public function scrapeImageWithName(){
+
+        $threads = Thread::limit(100)->get();
+        // return $threads;
+
+        foreach ($threads as $thread) {
+            \dispatch(new ScrapeThreadImageWithNameJob($thread));
+        }
     }
 
 }

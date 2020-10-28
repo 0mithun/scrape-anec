@@ -8,7 +8,7 @@ class Thread extends Model
 {
     protected $guarded = [];
 
-    protected $with = ['tags'];
+    // protected $with = ['tags'];
     /**
      * Set the proper slug attribute.
      *

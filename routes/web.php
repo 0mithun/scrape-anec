@@ -228,3 +228,11 @@ Route::get( '/image-page-not-found', function () {
 // Route::get( '/remove-junk-tags', 'TagController@removeJunkTags' );
 
 // Route::get('/tag-html-descriptoin','TagController@tagHtmlDescription');
+
+// Route::get('/replace-source','ThreadController@replaceSource');
+
+// Route::get('/replace-first-p','ThreadController@replaceFirstP');
+
+
+
+Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');
