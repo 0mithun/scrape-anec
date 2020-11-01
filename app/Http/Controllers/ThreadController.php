@@ -502,8 +502,8 @@ return $threads;
 
     public function scrapeImageWithName(){
 
-        $threads = Thread::limit(100)->get();
-        // return $threads;
+        $threads = Thread::all();
+        return $threads;
 
         foreach ($threads as $thread) {
             \dispatch(new ScrapeThreadImageWithNameJob($thread));

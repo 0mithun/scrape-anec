@@ -172,6 +172,7 @@ class ScrapeThreadImageWithNameJob implements ShouldQueue
                 $fullDescriptionText = sprintf( '%s %s', $descriptionText,  $htmlLicense  );
             }
 
+                $pixelColor = $this->getImageColorAttribute($full_image_link);
             $data = [
                 'wiki_info_page_url' => $newUrl,
                 'description' => $fullDescriptionText,
@@ -179,10 +180,11 @@ class ScrapeThreadImageWithNameJob implements ShouldQueue
                 'wiki_image_page_url' =>  $image_page_url,
                 'wiki_image_url' =>  $full_image_link,
                 'wiki_image_path' =>  $full_image_link,
+                'wiki_image_path_pixel_color' =>  $pixelColor,
             ];
 
-            dump($data);
-            // $this->saveInfo( $data );
+            // dump($data);
+            $this->saveInfo( $data );
 
             // $shopText = '<a class="btn btn-xs btn-primary" href="http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords='.$this->tag->name.'&linkCode=ur2&tag=anecdotage01-20">Shop for '.$this->tag->name.'</a>';
 
@@ -195,5 +197,45 @@ class ScrapeThreadImageWithNameJob implements ShouldQueue
 
     public function saveInfo(array $data){
         $this->thread->update($data);
+    }
+
+    /**
+     * Get rgb color value from image
+     */
+
+    public function getImageColorAttribute( $image_path ) {
+
+        if ( $image_path != '' ) {
+            $splitName = explode( '.', $image_path );
+            $extension = strtolower( array_pop( $splitName ) );
+
+            if ( $extension == 'jpg' ) {
+                $im = imagecreatefromjpeg( $image_path );
+            }
+
+            if ( $extension == 'jpeg' ) {
+                $im = imagecreatefromjpeg( $image_path );
+            } else
+            if ( $extension == 'png' ) {
+                $im = imagecreatefrompng( $image_path );
+            } else
+            if ( $extension == 'gif' ) {
+                $im = imagecreatefromgif( $image_path );
+            }
+
+            if ( isset( $im ) ) {
+
+                $rgb = imagecolorat( $im, 0, 0 );
+                $colors = imagecolorsforindex( $im, $rgb );
+                array_pop( $colors );
+                array_push( $colors, 1 );
+                $rgbaString = join( ', ', $colors );
+
+                return $rgbaString;
+            }
+
+        }
+
+        return '';
     }
 }

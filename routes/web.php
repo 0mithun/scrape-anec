@@ -72,7 +72,7 @@ Route::get( '/', function () {
 
 // Route::get('/set-other-pixel', 'ScrapeController@otherpixel');
 
-// Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
+Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
 
 // Route::get('/tag-scrape', 'TagController@scrapeTag');
 
@@ -231,8 +231,8 @@ Route::get( '/image-page-not-found', function () {
 
 // Route::get('/replace-source','ThreadController@replaceSource');
 
-// Route::get('/replace-first-p','ThreadController@replaceFirstP');
+Route::get('/replace-first-p','ThreadController@replaceFirstP');
 
 
 
-Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');
+// Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');

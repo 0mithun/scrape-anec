@@ -31,15 +31,15 @@ class ReplaceFirstPJob implements ShouldQueue
      */
     public function handle()
     {
-        // $pattern  = '#^</p>#';
+        // $pattern  = '#^<p>#';
         // $newBody = \preg_replace($pattern,'',$this->thread->body);
         // dump($this->thread->body);
         
-        $pattern  = '#^<p>([^</p]+)</p>#';
-        \preg_match_all($pattern, $this->thread->body, $matches);
-        \dump($matches);
+        // $pattern  = '#^<p>([^</p]+)</p>#';
+        // \preg_match_all($pattern, $this->thread->body, $matches);
+        // \dump($matches);
                 
-        $newBody = preg_replace($pattern,$matches[1][0], $this->thread->body);
+        // $newBody = preg_replace($pattern,$matches[1][0], $this->thread->body);
 
         // dump($this->thread->body);
         // dump($newBody);
@@ -52,9 +52,23 @@ class ReplaceFirstPJob implements ShouldQueue
 
 
         // \dump($newBody);
+
+        //^<p>((?!<\/p>).)*<\/p>
         
+        // $this->thread->body = $newBody;
+        // $this->thread->save();
+
+        // $pattern = "#^<p>(((?!<\/p>).)*)<\/p>#";
+        $pattern = "#^<p>#";
+        $newBody = \preg_replace($pattern, '',$this->thread->body);
+
+        dump($this->thread->body);
+        dump("New Body\n");
+        dump($newBody);
         $this->thread->body = $newBody;
         $this->thread->save();
+
         dump("------------------------------");
+
     }
 }
