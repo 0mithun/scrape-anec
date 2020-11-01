@@ -12,6 +12,7 @@ use App\Jobs\StripSlugTagJob;
 use App\Jobs\InsertAmazonLink;
 use App\Jobs\ReplaceFirstPJob;
 use App\Jobs\ReplaceSourceJob;
+use App\Jobs\UpdateWikiDescription;
 use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\ScrapeThreadImageWithNameJob;
 
@@ -508,6 +509,23 @@ return $threads;
         foreach ($threads as $thread) {
             \dispatch(new ScrapeThreadImageWithNameJob($thread));
         }
+    }
+
+    public function updateWikiDescription(){
+
+        $threads = Thread::where('description', '!=','')->where('wiki_image_description','')->get();
+
+        return $threads;
+
+        foreach($threads as $thread){
+            \dispatch(new UpdateWikiDescription($thread));
+        }
+    }
+
+    public function updateNullLocation(){
+        // $threads = DB::table('threads')->where('location','null')->update(['location'=>'']);
+
+        // return Thread::where('location','null')->get();
     }
 
 }
