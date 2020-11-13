@@ -244,3 +244,5 @@ Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithNam
 // Route::get('rescrape-description','ThreadController@reScrapeDescription');
 
 Route::get('thread/update-amazon-link','ThreadController@upadteAmazonLink');
+
+Route::get('add-bracket-to-tag-license','TagController@addBracket');

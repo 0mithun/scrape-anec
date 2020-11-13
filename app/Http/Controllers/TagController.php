@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\NewTagScraping;
-use App\Jobs\RemoveDuplicateItem;
-use App\Jobs\RemoveJunkTags;
-use App\Jobs\TagImageProcessing;
-use App\Jobs\UpdateAmazonLink;
-use App\NewTag;
 use App\Tags;
+use App\NewTag;
 use Goutte\Client;
+use App\Jobs\NewTagScraping;
+use App\Jobs\RemoveJunkTags;
+use App\Jobs\UpdateAmazonLink;
+use App\Jobs\TagImageProcessing;
+use App\Jobs\RemoveDuplicateItem;
+use App\Jobs\AddBracketsToTagLicense;
 use phpDocumentor\Reflection\DocBlock\Tag;
 
 class TagController extends Controller {
@@ -180,6 +181,16 @@ class TagController extends Controller {
             dispatch( new RemoveJunkTags( $tag ) );
         }
 
+    }
+
+    public function addBracket(){
+
+        // $tags = Tags::where('error',1)->get();
+        $tags = Tags::where('description', 'NOT LIKE','%<br>%')->get();
+        return $tags;
+        foreach($tags as $tag){
+            \dispatch(new AddBracketsToTagLicense($tag));
+        }
     }
 
 }
