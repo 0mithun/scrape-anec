@@ -13,7 +13,9 @@ use App\Jobs\InsertAmazonLink;
 use App\Jobs\ReplaceFirstPJob;
 use App\Jobs\ReplaceSourceJob;
 use App\Jobs\UpdateWikiDescription;
+use App\Jobs\UpdateThreadAmazonLink;
 use App\Jobs\RemoveDuplicateThreadTag;
+use App\Jobs\ScrapeMissingDescriptionJob;
 use App\Jobs\ScrapeThreadImageWithNameJob;
 
 class ThreadController extends Controller {
@@ -503,8 +505,13 @@ return $threads;
 
     public function scrapeImageWithName(){
 
-        $threads = Thread::all();
-        return $threads;
+        $threads = Thread::whereNull('wiki_image_path')
+            ->whereNull('image_path')
+            ->whereNull('other_image_path')
+            ->whereNull('amazon_image_path')
+            // ->limit(100)
+            ->get();
+        // return $threads;
 
         foreach ($threads as $thread) {
             \dispatch(new ScrapeThreadImageWithNameJob($thread));
@@ -527,5 +534,26 @@ return $threads;
 
         // return Thread::where('location','null')->get();
     }
+    public function reScrapeDescription(){
+        $threads = Thread::where('wiki_image_path','!=','')->where('wiki_image_description','')->get();
 
+        return $threads;
+
+
+        foreach($threads as $thread){
+            \dispatch(new ScrapeMissingDescriptionJob($thread));
+        }
+
+    }
+
+
+    public function upadteAmazonLink()
+    {
+        $threads = Thread::where('description','LIKE', '%&anecdotage01-20%')->get();
+        // return $threads;
+
+        foreach($threads as $thread){
+            \dispatch(new UpdateThreadAmazonLink($thread));
+        }
+    }
 }

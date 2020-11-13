@@ -235,8 +235,12 @@ Route::get('/replace-first-p','ThreadController@replaceFirstP');
 
 
 
-// Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');
+Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');
 
 // Route::get('/update-wiki-description','ThreadController@updateWikiDescription');
 
 // Route::get('/update-null-location','ThreadController@updateNullLocation');
+
+// Route::get('rescrape-description','ThreadController@reScrapeDescription');
+
+Route::get('thread/update-amazon-link','ThreadController@upadteAmazonLink');

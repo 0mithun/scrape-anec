@@ -45,14 +45,22 @@ class ScrapeThreadImageWithNameJob implements ShouldQueue
 
         $found = false;
         foreach($nameLists as $nameList){
-            if(stripos($this->thread->body, $nameList)){              
-               $found = true;
+            // if(stripos($this->thread->body, $nameList)){              
+            //    $found = true;
+            //    dump($nameList);
+            //     break;
+            // }else 
+            
+            if(stripos($this->thread->tag_names, $nameList)){
+                $found = true;
+                dump($nameList);
                 break;
             }
         }
 
         if($found){
-            $nameList;
+            dump('found');
+            dump($this->thread->slug);
               $this->scrapeWithKeyword($nameList);
         }        
     }
@@ -183,7 +191,7 @@ class ScrapeThreadImageWithNameJob implements ShouldQueue
                 'wiki_image_path_pixel_color' =>  $pixelColor,
             ];
 
-            // dump($data);
+            dump($data);
             $this->saveInfo( $data );
 
             // $shopText = '<a class="btn btn-xs btn-primary" href="http://www.amazon.com/gp/search?ie=UTF8&camp=1789&creative=9325&index=aps&keywords='.$this->tag->name.'&linkCode=ur2&tag=anecdotage01-20">Shop for '.$this->tag->name.'</a>';
