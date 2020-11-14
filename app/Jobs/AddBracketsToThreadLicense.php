@@ -22,7 +22,7 @@ class AddBracketsToThreadLicense implements ShouldQueue
      */
     public function __construct(Thread $thread)
     {
-        $thread->thread = $thread;
+       $this->thread = $thread;
     }
 
     /**
@@ -32,72 +32,21 @@ class AddBracketsToThreadLicense implements ShouldQueue
      */
     public function handle()
     {
-        // \dump($this->thread->description);
         $descriptoin = $this->thread->description;
-
-        // $publicSearchText = 'Public domain <a';
-        // $publicReplaceText = '(Public domain) <br><a';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-    
-        // $publicSearchText = 'CC BY-SA 1.0</a>';
-        // $publicReplaceText = '(CC BY-SA 1.0)</a> <br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY-SA 1.5</a>';
-        // $publicReplaceText = '(CC BY-SA 1.5)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY-SA 2.5 <a';
-        // $publicReplaceText = '(CC BY-SA 2.5)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY-SA 3.0</a>';
-        // $publicReplaceText = '(CC BY-SA 3.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY-SA 4.0</a>';
-        // $publicReplaceText = '(CC BY-SA 4.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-
-
-        // $publicSearchText = 'CC BY 1.0</a>';
-        // $publicReplaceText = '(CC BY 1.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY 1.5</a>';
-        // $publicReplaceText = '(CC BY 1.5)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY 2.0</a>';
-        // $publicReplaceText = '(CC BY 2.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY 2.5</a>';
-        // $publicReplaceText = '(CC BY 2.5)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY 3.0</a>';
-        // $publicReplaceText = '(CC BY 3.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
-
-        // $publicSearchText = 'CC BY 4.0</a>';
-        // $publicReplaceText = '(CC BY 4.0)</a><br>';
-        // $descriptoin = \str_replace($publicSearchText, $publicReplaceText, $descriptoin);
+        dump($descriptoin);
         
                 $pattern = '@\([\s\S][^\)]+\)@';
        
                $licenseText = \preg_match($pattern, $descriptoin, $matches);
 
-               \dump($matches);
-
-               $licenseText = str_replace('(', '', $licenseText);
-               $licenseText = str_replace(')', '', $licenseText);
+               $licenseText = str_replace(')', '', $matches[0]);
+                $licenseText = str_replace('(', '', $licenseText);
+                dump($licenseText);
 
                 $saLicenseType = [
                     'CC BY-SA 1.0',
                     'CC BY-SA 1.5',
+                    'CC BY-SA 2.0',
                     'CC BY-SA 2.5',
                     'CC BY-SA 3.0',
                     'CC BY-SA 4.0',
@@ -105,36 +54,43 @@ class AddBracketsToThreadLicense implements ShouldQueue
                 $nonSaLicenseType = [
                     'CC BY 1.0',
                     'CC BY 1.5',
-                    'CC BY 2.0 ',
-                    'CC BY 2.5 ',
+                    'CC BY 2.0',
+                    'CC BY 2.5',
                     'CC BY 3.0',
                     'CC BY 4.0',
                 ];
-        
+                $htmlLicense = '';
+               
+                if( $licenseText == 'Public domain'){
+                    $htmlLicense = ' (Public domain)';
+                }
                 
-                
-                if ( in_array( $licenseText, $saLicenseType ) ) {
+               else if ( in_array( $licenseText, $saLicenseType ) ) {
                    if( \preg_match('&(\d)\.?\d?&',$licenseText, $matches)){        
-                       $htmlLicense = '<a href="https://creativecommons.org/licenses/by-sa/'.$matches[0].'">('.$licenseText.')</a>';
+                       $htmlLicense = ' <a href="https://creativecommons.org/licenses/by-sa/'.$matches[0].'">('.$licenseText.')</a>';
+                       dump($htmlLicense);
                    }
                 }else if ( in_array( $licenseText, $nonSaLicenseType ) ) {
                     if(\preg_match('&(\d)\.?\d?&',$licenseText, $matches)){        
-                        $htmlLicense = '<a href="https://creativecommons.org/licenses/by/'.$matches[0].'">('.$licenseText.')</a>';
+                        $htmlLicense = ' <a href="https://creativecommons.org/licenses/by/'.$matches[0].'">('.$licenseText.')</a>';
+                        dump($htmlLicense);
                     }
                 }
 
-                $htmlDescription = \preg_replace($pattern, $htmlDescription, $descriptoin);
+                if($htmlLicense != ''){
 
-                dump($htmlDescription);
-                
-                // $data = [
-                //     'description' => $descriptoinText.' '.$licenseText,
-                // ];
-                
-                // dump($data);
-                // dump('-------------');
-        
-                // $this->saveInfo( $data );
+                    $htmlDescription = \preg_replace($pattern, $htmlLicense, $descriptoin);
+    
+                    dump($htmlDescription);
+                    
+                    $data = [
+                        'description' => $htmlDescription
+                    ];
+                    
+                    dump($data);
+                    $this->saveInfo( $data );
+                }
+
 
 
         }
@@ -142,7 +98,7 @@ class AddBracketsToThreadLicense implements ShouldQueue
         
 
        
-    }
+    
 
      
 

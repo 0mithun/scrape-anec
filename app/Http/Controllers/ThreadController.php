@@ -15,6 +15,7 @@ use App\Jobs\ReplaceSourceJob;
 use App\Jobs\UpdateWikiDescription;
 use App\Jobs\UpdateThreadAmazonLink;
 use App\Jobs\RemoveDuplicateThreadTag;
+use App\Jobs\AddBracketsToThreadLicense;
 use App\Jobs\ScrapeMissingDescriptionJob;
 use App\Jobs\ScrapeThreadImageWithNameJob;
 
@@ -555,5 +556,15 @@ return $threads;
         foreach($threads as $thread){
             \dispatch(new UpdateThreadAmazonLink($thread));
         }
+    }
+
+    public function addBracket(){
+        $threads = Thread::whereNotNull('description')->where('description','!=',' ')->where('description','NOT LIKE','%<a href="https://creativecommons.org/%')->where('description','NOT LIKE','%(Public domain%')->get();
+        // return $threads;
+
+        foreach($threads as $thread){
+            \dispatch(new AddBracketsToThreadLicense($thread));
+        }
+    
     }
 }
