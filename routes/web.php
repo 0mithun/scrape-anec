@@ -247,4 +247,5 @@ Route::get('thread/update-amazon-link','ThreadController@upadteAmazonLink');
 
 Route::get('add-bracket-to-tag-license','TagController@addBracket');
 
+
 Route::get('add-bracket-to-thread-license','ThreadController@addBracket');
