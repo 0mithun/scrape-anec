@@ -31,8 +31,6 @@ class UpdateThreadAmazonLink implements ShouldQueue
      */
     public function handle() {
 
-        dump( $this->thread->description );
-
         // if(\stripos($this->thread->description, '<a href="https://www.amazon.com/')){
         //         $replaceText ='tag=anecdotage01-20';
         //         $newDescription = str_replace( 'tag=anecdotagecom-20', $replaceText, $this->thread->description );
@@ -43,12 +41,12 @@ class UpdateThreadAmazonLink implements ShouldQueue
         // }
 
 
-        $replaceText = 'tag=anecdotage01-20';
-        $newDescription = str_replace( '&anecdotage01-20', $replaceText, $this->thread->description );
+        $replaceText = 'anecdotage01-20';
+        $body = str_replace( 'anecdotagecom-20', $replaceText, $this->thread->body );
 
-        dump( $newDescription );
+        dump( $body );
 
-        $this->thread->description = $newDescription;
+        $this->thread->body = $body;
         $this->thread->save();
     }
 }

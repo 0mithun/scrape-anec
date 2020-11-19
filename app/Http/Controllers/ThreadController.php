@@ -550,7 +550,7 @@ return $threads;
 
     public function upadteAmazonLink()
     {
-        $threads = Thread::where('description','LIKE', '%&anecdotage01-20%')->get();
+        $threads = Thread::where('body','LIKE', '%anecdotagecom-20%')->get();
         // return $threads;
 
         foreach($threads as $thread){
