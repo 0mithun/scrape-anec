@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get( '/', function () {
-    return view( 'welcome' );
-} );
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // Route::get( '/update-slug', 'ThreadController@updateSlug' );
 
@@ -80,29 +80,29 @@ Route::get('/set-wiki-pixel', 'ScrapeController@wikipixel');
 
 // Route::
 
-Route::get( '/test', function () {
+Route::get('/test', function () {
 
-// return Tags::where('photo', '!=', '')->get();
+    // return Tags::where('photo', '!=', '')->get();
 
-// return Tags::where('photo', 'LIKE', '%.com%')->get();
+    // return Tags::where('photo', 'LIKE', '%.com%')->get();
 
-// return Tags::where('updated_at', '>', now()->subHour(5))->get();
+    // return Tags::where('updated_at', '>', now()->subHour(5))->get();
 
-// $user = User::first();
+    // $user = User::first();
 
     // $user->notify(new TestEmailNotification);
 
-    $threads = Thread::where( 'wiki_image_path', null )->Where( 'amazon_image_path', '=', null )->Where( 'other_image_path', '=', null )->limit( 100 )->get();
+    $threads = Thread::where('wiki_image_path', null)->Where('amazon_image_path', '=', null)->Where('other_image_path', '=', null)->limit(100)->get();
 
-// return $threads;
+    // return $threads;
 
-// $threads = Thread::where('wiki_image_path', '!=', '')->count(); //27972
+    // $threads = Thread::where('wiki_image_path', '!=', '')->count(); //27972
 
-// $threads = Thread::where('amazon_image_path', '!=', '')->count(); //696
+    // $threads = Thread::where('amazon_image_path', '!=', '')->count(); //696
 
-// $threads = Thread::where('other_image_path', '!=', '')->get(); //968
+    // $threads = Thread::where('other_image_path', '!=', '')->get(); //968
 
-// file_put_contents('data.csv', collect($threads)->values()->all());
+    // file_put_contents('data.csv', collect($threads)->values()->all());
     // return $threads; //29636//39569
 
     $fileName = 'data.csv';
@@ -169,31 +169,31 @@ Route::get( '/test', function () {
         'updated_at',
     );
 
-    $callback = function () use ( $threads, $columns ) {
-        $file = fopen( 'php://output', 'w' );
-        fputcsv( $file, $columns );
+    $callback = function () use ($threads, $columns) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
 
-        foreach ( $threads as $task ) {
+        foreach ($threads as $task) {
 
-// $row['Title']  = $task->title;
+            // $row['Title']  = $task->title;
 
-// $row['Assign']    = $task->assign->name;
+            // $row['Assign']    = $task->assign->name;
 
-// $row['Description']    = $task->description;
+            // $row['Description']    = $task->description;
 
-// $row['Start Date']  = $task->start_at;
+            // $row['Start Date']  = $task->start_at;
 
-// $row['Due Date']  = $task->end_at;
+            // $row['Due Date']  = $task->end_at;
 
             // fputcsv($file, array($row['Title'], $row['Assign'], $row['Description'], $row['Start Date'], $row['Due Date']));
-            fputcsv( $file, $task->toArray() );
+            fputcsv($file, $task->toArray());
         }
 
-        fclose( $file );
+        fclose($file);
     };
 
-    return response()->stream( $callback, 200, $headers );
-} );
+    return response()->stream($callback, 200, $headers);
+});
 
 // Route::get( 'update-photo', 'TagController@updatePhotoUrl' );
 
@@ -211,7 +211,7 @@ Route::get( '/test', function () {
 
 // Route::get( '/update-amazon-link', 'TagController@updateAmazonLink' );
 
-Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
+Route::get('strip-slug-tags', 'ThreadController@stripSlug');
 
 // Route::get( '/remove-duplicate-tags', 'TagController@removeDuplicate' );
 
@@ -219,9 +219,9 @@ Route::get( 'strip-slug-tags', 'ThreadController@stripSlug' );
 
 // Route::get( '/new-wiki-scrape', 'ThreadController@newWikiScrape' );
 
-Route::get( '/image-page-not-found', function () {
-    return DB::table( 'image_page_not_found' )->get();
-} );
+Route::get('/image-page-not-found', function () {
+    return DB::table('image_page_not_found')->get();
+});
 
 // Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
 
@@ -231,11 +231,11 @@ Route::get( '/image-page-not-found', function () {
 
 // Route::get('/replace-source','ThreadController@replaceSource');
 
-Route::get('/replace-first-p','ThreadController@replaceFirstP');
+Route::get('/replace-first-p', 'ThreadController@replaceFirstP');
 
 
 
-Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithName');
+Route::get('/scrape-thread-image-with-list', 'ThreadController@scrapeImageWithName');
 
 // Route::get('/update-wiki-description','ThreadController@updateWikiDescription');
 
@@ -243,9 +243,11 @@ Route::get('/scrape-thread-image-with-list','ThreadController@scrapeImageWithNam
 
 // Route::get('rescrape-description','ThreadController@reScrapeDescription');
 
-Route::get('thread/update-amazon-link','ThreadController@upadteAmazonLink');
+Route::get('thread/update-amazon-link', 'ThreadController@upadteAmazonLink');
 
-Route::get('add-bracket-to-tag-license','TagController@addBracket');
+Route::get('add-bracket-to-tag-license', 'TagController@addBracket');
 
 
-Route::get('add-bracket-to-thread-license','ThreadController@addBracket');
+Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
+
+// Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
