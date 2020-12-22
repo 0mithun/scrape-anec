@@ -17,6 +17,7 @@ use App\Jobs\UpdateThreadAmazonLink;
 use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\AddBracketsToThreadLicense;
 use App\Jobs\InsertAmazonProductUrlToThreadsTable;
+use App\Jobs\NewNameListScrapingJob;
 use App\Jobs\ScrapeMissingDescriptionJob;
 use App\Jobs\ScrapeThreadImageWithNameJob;
 
@@ -589,5 +590,14 @@ class ThreadController extends Controller
 
         // });
         // return $threads = Thread::where('amazon_image_path', '')->count();
+    }
+
+    public function newNameListScraping()
+    {
+        $threads = Thread::whereNotNull('wiki_image_path')->get();
+
+        foreach ($threads as $thread) {
+            dispatch(new NewNameListScrapingJob($thread));
+        }
     }
 }

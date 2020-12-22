@@ -251,3 +251,4 @@ Route::get('add-bracket-to-tag-license', 'TagController@addBracket');
 Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
 
 // Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
+// Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
