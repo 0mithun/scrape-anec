@@ -42,17 +42,62 @@ class NewNameListScrapingJob implements ShouldQueue
         foreach ($cnoList as $cnoItem) {
             $count++;
             info($cnoItem->keyword);
-            $title = stripos($this->thread->title, $cnoItem->keyword);
+            // $title = stripos($this->thread->title, $cnoItem->keyword);
             // $body = strpos($this->thread->body, $cnoItem->keyword);
-            if ($title) {
-                // info("Found: " . $cnoItem->keyword);
-                $this->scrapeWithKeyword($cnoItem->keyword);
+
+            if (preg_match("/$cnoItem->keyword/i", $this->thread->title)) {
+
+                if ($cnoItem->found == 1) {
+                    dump('found old');
+                    $data = [
+                        'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
+                        'wiki_image_url' => $cnoItem->wiki_image_url,
+                        'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
+                        'description' => $cnoItem->description
+
+                    ];
+
+                    if (strtoupper($cnoItem->keyword) == 'C') {
+                        $data['cno'] = 'C';
+                    } else if (strtoupper($cnoItem->keyword) == 'F') {
+                        $data['cno'] = 'F';
+                    } else {
+                        $data['cno'] = 'O';
+                    }
+                    // dump($data);
+                    $this->saveInfo($data);
+                } else {
+                    $this->scrapeWithKeyword($cnoItem->keyword);
+                }
+
                 break;
             } else {
                 $tags = $this->thread->tags()->pluck('name')->toArray();
                 if (in_array($cnoItem->keyword, $tags)) {
                     dump('found in tags');
-                    $this->scrapeWithKeyword($cnoItem->keyword);
+                    if ($cnoItem->found == 1) {
+                        dump('found old');
+                        $data = [
+                            'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
+                            'wiki_image_url' => $cnoItem->wiki_image_url,
+                            'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
+                            'description' => $cnoItem->description
+
+                        ];
+
+                        if (strtoupper($cnoItem->keyword) == 'C') {
+                            $data['cno'] = 'C';
+                        } else if (strtoupper($cnoItem->keyword) == 'F') {
+                            $data['cno'] = 'F';
+                        } else {
+                            $data['cno'] = 'O';
+                        }
+                        // dump($data);
+                        $this->saveInfo($data);
+                    } else {
+                        $this->scrapeWithKeyword($cnoItem->keyword);
+                    }
+
                     break;
                 }
             }
@@ -175,7 +220,8 @@ class NewNameListScrapingJob implements ShouldQueue
                 'wiki_image_url' => $full_image_link,
                 'wiki_image_path' => $full_image_link,
                 'wiki_image_path_pixel_color' => $pixelColor ?? '',
-                'wiki_image_description' => $fullDescriptionText
+                'wiki_image_description' => $fullDescriptionText,
+                'description' => $fullDescriptionText
 
             ];
 
@@ -189,6 +235,15 @@ class NewNameListScrapingJob implements ShouldQueue
 
             // dump($data);
             $this->saveInfo($data);
+
+
+            $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update([
+                'wiki_image_page_url' => $image_page_url,
+                'wiki_image_url' => $full_image_link,
+                'wiki_image_path_pixel_color' => $pixelColor ?? '',
+                'description' => $fullDescriptionText,
+                'found' => 1,
+            ]);
         }
     }
 

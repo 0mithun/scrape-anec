@@ -17,6 +17,7 @@ use App\Jobs\UpdateThreadAmazonLink;
 use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\AddBracketsToThreadLicense;
 use App\Jobs\InsertAmazonProductUrlToThreadsTable;
+use App\Jobs\InsertOldDbToNewDB;
 use App\Jobs\NewNameListScrapingJob;
 use App\Jobs\ScrapeMissingDescriptionJob;
 use App\Jobs\ScrapeThreadImageWithNameJob;
@@ -598,6 +599,15 @@ class ThreadController extends Controller
 
         foreach ($threads as $thread) {
             dispatch(new NewNameListScrapingJob($thread));
+        }
+    }
+
+    public function insertOldToNewDb()
+    {
+        $threads = Thread::all();
+
+        foreach ($threads as $thread) {
+            dispatch(new InsertOldDbToNewDB($thread));
         }
     }
 }
