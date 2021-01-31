@@ -52,6 +52,7 @@ class NewNameListScrapingJob implements ShouldQueue
                     $data = [
                         'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
                         'wiki_image_url' => $cnoItem->wiki_image_url,
+                        'wiki_image_path' => $cnoItem->wiki_image_url,
                         'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
                         'description' => $cnoItem->description
 
