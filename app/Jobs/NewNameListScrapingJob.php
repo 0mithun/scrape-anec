@@ -214,7 +214,7 @@ class NewNameListScrapingJob implements ShouldQueue
                 }
             }
 
-            $fullDescriptionText = sprintf('%s %s %s', $descriptionText, $authorText, $htmlLicense);
+            $fullDescriptionText = sprintf('%s %s %s', "", $authorText, $htmlLicense);
             $pixelColor = $this->getImageColorAttribute($full_image_link);
             $data = [
                 'wiki_image_page_url' => $image_page_url,

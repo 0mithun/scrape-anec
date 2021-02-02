@@ -60,7 +60,7 @@ class InsertOldDbToNewDB implements ShouldQueue
 
 
             'is_published'    => $this->thread->is_published,
-            'famous'    => $this->thread->famous,
+            // 'famous'    => $this->thread->famous,
             'visits'    => $this->thread->visits,
             'favorite_count'    => $this->thread->favorite_count,
             'like_count'    => $this->thread->like_count,

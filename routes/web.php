@@ -254,15 +254,15 @@ Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
 // Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
 // Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
 
-// Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
+Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
 // Route::get('insert-old-tag-to-new-tag', 'TagController@insertOldToNewDb');
 
 // Route::get('insert-old-thread-tag-to-new-thread-tag', 'TagController@insertOldThreadTagToNewThreadTag');
 
 
-Route::get('add-old-like-to-new-like', function () {
-    $likes = \DB::table('likes')->get();
-    foreach ($likes as $like) {
-        dispatch(new AddOldLikeToNewLike($like));
-    }
-});
+// Route::get('add-old-like-to-new-like', function () {
+//     $likes = \DB::table('likes')->get();
+//     foreach ($likes as $like) {
+//         dispatch(new AddOldLikeToNewLike($like));
+//     }
+// });
