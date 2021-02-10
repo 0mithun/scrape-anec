@@ -595,7 +595,17 @@ class ThreadController extends Controller
 
     public function newNameListScraping()
     {
-        $threads = Thread::whereNotNull('wiki_image_path')->get();
+        // $threads = Thread::whereNotNull('wiki_image_path')->get();
+
+
+        $threads = Thread::whereNotNull('wiki_image_path')
+            ->where('title','LIKE',"%,%")
+            ->orWhere('title','LIKE',"%'%")
+            ->orWhere('title','LIKE',"%:%")
+            ->orWhere('title','LIKE',"%-%")
+        ->get();
+
+
 
         foreach ($threads as $thread) {
             dispatch(new NewNameListScrapingJob($thread));

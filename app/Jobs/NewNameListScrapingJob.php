@@ -44,9 +44,10 @@ class NewNameListScrapingJob implements ShouldQueue
             info($cnoItem->keyword);
             // $title = stripos($this->thread->title, $cnoItem->keyword);
             // $body = strpos($this->thread->body, $cnoItem->keyword);
+            $pattern = "/($cnoItem->keyword)['|\s|:|-|,]/i";
 
-            if (preg_match("/$cnoItem->keyword/i", $this->thread->title)) {
-
+            if (preg_match($pattern, $this->thread->title)) {
+                dump('matches', $cnoItem->keyword);
                 if ($cnoItem->found == 1) {
                     dump('found old');
                     $data = [
@@ -135,6 +136,16 @@ class NewNameListScrapingJob implements ShouldQueue
             $this->scrpeImagePageUrl($image_page_url, $originalKeyword);
         } else {
             // $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update(['found' => 2]);
+            $data = [
+                'wiki_image_page_url' => '',
+                'wiki_image_url' => '',
+                'wiki_image_path' => '',
+                'wiki_image_path_pixel_color' => '',
+                'description' => ''
+
+            ];
+
+            $this->saveInfo($data);
         }
     }
 
