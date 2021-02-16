@@ -257,7 +257,7 @@ Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
 Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
 // Route::get('insert-old-tag-to-new-tag', 'TagController@insertOldToNewDb');
 
-// Route::get('insert-old-thread-tag-to-new-thread-tag', 'TagController@insertOldThreadTagToNewThreadTag');
+Route::get('insert-old-thread-tag-to-new-thread-tag', 'TagController@insertOldThreadTagToNewThreadTag');
 
 
 // Route::get('add-old-like-to-new-like', function () {
