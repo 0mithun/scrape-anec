@@ -44,7 +44,7 @@ class NewNameListScrapingJob implements ShouldQueue
             info($cnoItem->keyword);
             // $title = stripos($this->thread->title, $cnoItem->keyword);
             // $body = strpos($this->thread->body, $cnoItem->keyword);
-            $pattern = "/($cnoItem->keyword)['|\s|:|-|,]/i";
+            $pattern = "/\b($cnoItem->keyword)\b/i";
 
             if (preg_match($pattern, $this->thread->title)) {
                 dump('matches', $cnoItem->keyword);
