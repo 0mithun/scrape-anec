@@ -19,8 +19,38 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/test-size', function () {
+    // Assume failure.
+  $result = -1;
+
+  $url = 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Dean_Franklin_-_06.04.03_Mount_Rushmore_Monument_%28by-sa%29.jpg';
+  $url = 'https://anecdotage.com/anecdotes/eleanor-of-aquitaine?fbclid=IwAR10RkXO_UpyICX9yOFws5N9HxEJ3JlxgAyQg1T0ZKa_i6xTFKTLQ6uGbsM';
+ $ch = curl_init($url);
+
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+     curl_setopt($ch, CURLOPT_HEADER, TRUE);
+     curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+
+     $data = curl_exec($ch);
+     $size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+
+     curl_close($ch);
+     return $size;
+
+
+
+    // $url = 'http://stackoverflow.com/questions/2602612/php-remote-file-size-without-downloading-file';
+
+    // $headers = get_headers($url, true);
+
+    // if ( isset($headers['Content-Length']) ) {
+    // $size = 'file size:' . $headers['Content-Length'];
+    // }
+    // else {
+    // $size = 'file size: unknown';
+    // }
+
+    // echo $size;
 });
 
 // Route::get( '/update-slug', 'ThreadController@updateSlug' );
@@ -253,6 +283,7 @@ Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
 
 // Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
 Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
+Route::get('insert-missing-author', 'ThreadController@insertMissingJob');
 
 Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
 // Route::get('insert-old-tag-to-new-tag', 'TagController@insertOldToNewDb');

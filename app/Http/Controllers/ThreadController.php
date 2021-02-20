@@ -17,6 +17,7 @@ use App\Jobs\UpdateThreadAmazonLink;
 use App\Jobs\RemoveDuplicateThreadTag;
 use App\Jobs\AddBracketsToThreadLicense;
 use App\Jobs\InsertAmazonProductUrlToThreadsTable;
+use App\Jobs\InsertMissingAuthor;
 use App\Jobs\InsertOldDbToNewDB;
 use App\Jobs\NewNameListScrapingJob;
 use App\Jobs\ScrapeMissingDescriptionJob;
@@ -595,7 +596,9 @@ class ThreadController extends Controller
 
     public function newNameListScraping()
     {
-        $threads = Thread::whereNotNull('wiki_image_path')->get();
+        // $threads = Thread::whereNotNull('wiki_image_path')->get();
+
+        $threads = Thread::where('slug','punch-drunk-revision')->get();
 
         foreach ($threads as $thread) {
             dispatch(new NewNameListScrapingJob($thread));
@@ -608,6 +611,15 @@ class ThreadController extends Controller
 
         foreach ($threads as $thread) {
             dispatch(new InsertOldDbToNewDB($thread));
+        }
+    }
+
+     public function insertMissingJob()
+    {
+        $threads = Thread::whereNotNull('wiki_image_page_url')->get();
+        // $threads = Thread::where('id',110)->limit(100)->get();
+        foreach ($threads as $thread) {
+            dispatch(new InsertMissingAuthor($thread));
         }
     }
 }

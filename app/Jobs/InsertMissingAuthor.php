@@ -1,25 +1,21 @@
 <?php
 
 namespace App\Jobs;
-
-use App\Tags;
 use App\Thread;
 
 use Goutte\Client;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-use DB;
-
-class NewNameListScrapingJob implements ShouldQueue
+class InsertMissingAuthor implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $thread;
-
+    protected $thread;
     /**
      * Create a new job instance.
      *
@@ -37,123 +33,11 @@ class NewNameListScrapingJob implements ShouldQueue
      */
     public function handle()
     {
-         $this->scrapeWithKeyword('Adam_Sandler');
-
-
-        $cnoList = DB::table('cno')->orderBy('id', 'DESC')->get();
-        $count = 0;
-        foreach ($cnoList as $cnoItem) {
-            $count++;
-            // info($cnoItem->keyword);
-            // $title = stripos($this->thread->title, $cnoItem->keyword);
-            // $body = strpos($this->thread->body, $cnoItem->keyword);
-            $pattern = "/\b($cnoItem->keyword)\b/i";
-
-            if (preg_match($pattern, $this->thread->title)) {
-                dump('matches', $cnoItem->keyword);
-                if ($cnoItem->found == 1) {
-                    dump('found old');
-                    $data = [
-                        'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
-                        'wiki_image_url' => $cnoItem->wiki_image_url,
-                        'wiki_image_path' => $cnoItem->wiki_image_url,
-                        'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
-                        'description' => $cnoItem->description
-
-                    ];
-
-                    if (strtoupper($cnoItem->keyword) == 'C') {
-                        $data['cno'] = 'C';
-                    } else if (strtoupper($cnoItem->keyword) == 'F') {
-                        $data['cno'] = 'F';
-                    } else {
-                        $data['cno'] = 'O';
-                    }
-                    // dump($data);
-                    $this->saveInfo($data);
-                } else {
-                    $this->scrapeWithKeyword($cnoItem->keyword);
-                }
-
-                break;
-            } else {
-                $tags = $this->thread->tags()->pluck('name')->toArray();
-                if (in_array($cnoItem->keyword, $tags)) {
-                    dump('found in tags');
-                    if ($cnoItem->found == 1) {
-                        dump('found old');
-                        $data = [
-                            'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
-                            'wiki_image_url' => $cnoItem->wiki_image_url,
-                            'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
-                            'description' => $cnoItem->description
-
-                        ];
-
-                        if (strtoupper($cnoItem->keyword) == 'C') {
-                            $data['cno'] = 'C';
-                        } else if (strtoupper($cnoItem->keyword) == 'F') {
-                            $data['cno'] = 'F';
-                        } else {
-                            $data['cno'] = 'O';
-                        }
-                        // dump($data);
-                        $this->saveInfo($data);
-                    } else {
-                        $this->scrapeWithKeyword($cnoItem->keyword);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        info("Total: " . $count);
-    }
-    public function scrapeWithKeyword($keyword)
-    {
-        $originalKeyword = $keyword;
-        $keyword = ucwords($keyword);
-        $keyword = str_replace(' ', '_', $keyword);
-        $newUrl = "https://en.wikipedia.org/wiki" . '/' . $keyword;
-
-        $client = new Client();
-        $crawler = $client->request('GET', $newUrl);
-
-        $infobox = $crawler->filter('table.infobox a.image')->first();
-
-        if (count($infobox)) {
-            $href = $infobox->extract(['href'])[0];
-            $image_page_url = 'https://en.wikipedia.org' . $href;
-        } else {
-            $thumbinner =  $crawler->filter('div.thumbinner a.image')->first();
-            if (count($thumbinner) > 0) {
-                $href = $thumbinner->extract(['href'])[0];
-                $image_page_url = 'https://en.wikipedia.org' . $href;
-            }
-        }
-
-
-        if (isset($image_page_url)) {
-
-            $this->scrpeImagePageUrl($image_page_url, $originalKeyword);
-        } else {
-            // $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update(['found' => 2]);
-            $data = [
-                'wiki_image_page_url' => '',
-                'wiki_image_url' => '',
-                'wiki_image_path' => '',
-                'wiki_image_path_pixel_color' => '',
-                'description' => ''
-
-            ];
-
-            $this->saveInfo($data);
-        }
+        $this->scrpeImagePageUrl($this->thread->wiki_image_page_url);
     }
 
 
-    public function scrpeImagePageUrl($image_page_url, $originalKeyword)
+    public function scrpeImagePageUrl($image_page_url)
     {
         $client = new Client();
         $licenseText = '';
@@ -220,7 +104,6 @@ class NewNameListScrapingJob implements ShouldQueue
 
             $author = $image_page->filter('td#fileinfotpl_aut');
 
-
             if ($author->count() > 0) {
                 dump('inside author');
                 $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
@@ -233,13 +116,12 @@ class NewNameListScrapingJob implements ShouldQueue
                    $authorText = $newAuthor->first()->text();
                 }
             }
-
+            dump($this->thread->id);
             dump($authorText);
 
             $fullDescriptionText = sprintf('%s %s %s', $descriptionText, $authorText, $htmlLicense);
 
             dump($fullDescriptionText);
-
             $pixelColor = $this->getImageColorAttribute($full_image_link);
             $data = [
                 'wiki_image_page_url' => $image_page_url,
@@ -251,25 +133,16 @@ class NewNameListScrapingJob implements ShouldQueue
 
             ];
 
-            if (strtoupper($originalKeyword) == 'C') {
-                $data['cno'] = 'C';
-            } else if (strtoupper($originalKeyword) == 'F') {
-                $data['cno'] = 'F';
-            } else {
-                $data['cno'] = 'O';
-            }
 
             // dump($data);
-            // $this->saveInfo($data);
+            $this->saveInfo($data);
 
-
-            // $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update([
-            //     'wiki_image_page_url' => $image_page_url,
-            //     'wiki_image_url' => $full_image_link,
-            //     'wiki_image_path_pixel_color' => $pixelColor ?? '',
-            //     'description' => $fullDescriptionText,
-            //     'found' => 1,
-            // ]);
+            DB::table('missing_author')->insert([
+                'thread_id' =>  $this->thread->id,
+                'old_description' =>  $this->thread->description,
+                'new_description' =>  $fullDescriptionText,
+                'author'        =>     $authorText,
+            ]);
         }
     }
 
