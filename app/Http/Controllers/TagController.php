@@ -163,7 +163,7 @@ class TagController extends Controller
      */
     public function newTagScrape()
     {
-        $tags = Tags::where('photo', 'NOT LIKE', '%download%"')->get();
+        $tags = Tags::where('photo', 'NOT LIKE', '%download%')->get();
 
         // return $tags;
 

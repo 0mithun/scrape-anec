@@ -37,8 +37,6 @@ class NewNameListScrapingJob implements ShouldQueue
      */
     public function handle()
     {
-         $this->scrapeWithKeyword('Adam_Sandler');
-
 
         $cnoList = DB::table('cno')->orderBy('id', 'DESC')->get();
         $count = 0;
@@ -52,25 +50,7 @@ class NewNameListScrapingJob implements ShouldQueue
             if (preg_match($pattern, $this->thread->title)) {
                 dump('matches', $cnoItem->keyword);
                 if ($cnoItem->found == 1) {
-                    dump('found old');
-                    $data = [
-                        'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
-                        'wiki_image_url' => $cnoItem->wiki_image_url,
-                        'wiki_image_path' => $cnoItem->wiki_image_url,
-                        'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
-                        'description' => $cnoItem->description
-
-                    ];
-
-                    if (strtoupper($cnoItem->keyword) == 'C') {
-                        $data['cno'] = 'C';
-                    } else if (strtoupper($cnoItem->keyword) == 'F') {
-                        $data['cno'] = 'F';
-                    } else {
-                        $data['cno'] = 'O';
-                    }
-                    // dump($data);
-                    $this->saveInfo($data);
+                     $this->foundOld($cnoItem);
                 } else {
                     $this->scrapeWithKeyword($cnoItem->keyword);
                 }
@@ -81,24 +61,7 @@ class NewNameListScrapingJob implements ShouldQueue
                 if (in_array($cnoItem->keyword, $tags)) {
                     dump('found in tags');
                     if ($cnoItem->found == 1) {
-                        dump('found old');
-                        $data = [
-                            'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
-                            'wiki_image_url' => $cnoItem->wiki_image_url,
-                            'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
-                            'description' => $cnoItem->description
-
-                        ];
-
-                        if (strtoupper($cnoItem->keyword) == 'C') {
-                            $data['cno'] = 'C';
-                        } else if (strtoupper($cnoItem->keyword) == 'F') {
-                            $data['cno'] = 'F';
-                        } else {
-                            $data['cno'] = 'O';
-                        }
-                        // dump($data);
-                        $this->saveInfo($data);
+                        $this->foundOld($cnoItem);
                     } else {
                         $this->scrapeWithKeyword($cnoItem->keyword);
                     }
@@ -136,10 +99,11 @@ class NewNameListScrapingJob implements ShouldQueue
 
         if (isset($image_page_url)) {
 
-            $this->scrpeImagePageUrl($image_page_url, $originalKeyword);
+            $this->scrpeImagePageUrl($image_page_url, $originalKeyword, $newUrl );
         } else {
             // $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update(['found' => 2]);
             $data = [
+                'wiki_info_page_url' => $newUrl,
                 'wiki_image_page_url' => '',
                 'wiki_image_url' => '',
                 'wiki_image_path' => '',
@@ -152,8 +116,7 @@ class NewNameListScrapingJob implements ShouldQueue
         }
     }
 
-
-    public function scrpeImagePageUrl($image_page_url, $originalKeyword)
+    public function scrpeImagePageUrl($image_page_url, $originalKeyword, $newUrl)
     {
         $client = new Client();
         $licenseText = '';
@@ -164,15 +127,24 @@ class NewNameListScrapingJob implements ShouldQueue
 
         $image_page = $client->request('GET', $image_page_url);
 
-        if ($image_page->filter('.fullImageLink a')->count() > 0) {
+       if($image_page->filter('.mw-filepage-resolutioninfo a')->count() > 0){
+            $full_image_link =  $image_page->filter('.mw-filepage-resolutioninfo a')->first()->extract(['href'])[0];
+            $full_image_link = str_replace('//upload', 'upload', $full_image_link);
+            $full_image_link = 'https://' . $full_image_link;
+            $full_image_link =  str_replace("//https:", '//', $full_image_link);
+
+            // dump($full_image_link);
+        }
+        elseif ($image_page->filter('.fullImageLink a')->count() > 0) {
             $full_image_link =  $image_page->filter('.fullImageLink a')->first()->extract(['href'])[0];
             $full_image_link = str_replace('//upload', 'upload', $full_image_link);
             $full_image_link = 'https://' . $full_image_link;
             $full_image_link =  str_replace("//https:", '//', $full_image_link);
+            // dump('default resolution');
         }
 
         if (isset($full_image_link)) {
-            dump('image-link inside');
+            // dump('image-link inside');
 
             $description = $image_page->filter('div.description');
             if ($description->count() > 0) {
@@ -222,7 +194,7 @@ class NewNameListScrapingJob implements ShouldQueue
 
 
             if ($author->count() > 0) {
-                dump('inside author');
+                // dump('inside author');
                 $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
                 $newAuthorAnchor = $newAuthor->filter('a');
 
@@ -234,14 +206,24 @@ class NewNameListScrapingJob implements ShouldQueue
                 }
             }
 
-            dump($authorText);
+            // dump($authorText);
+
+
 
             $fullDescriptionText = sprintf('%s %s %s', $descriptionText, $authorText, $htmlLicense);
 
-            dump($fullDescriptionText);
+            // dump($fullDescriptionText);
 
-            $pixelColor = $this->getImageColorAttribute($full_image_link);
+
+
+            if($this->thread->wiki_image_path == $full_image_link){
+                $pixelColor = $this->thread->wiki_image_path_pixel_color;
+            }else{
+                $pixelColor = $this->getImageColorAttribute($full_image_link);
+            }
+
             $data = [
+                'wiki_info_page_url' => $newUrl,
                 'wiki_image_page_url' => $image_page_url,
                 'wiki_image_url' => $full_image_link,
                 'wiki_image_path' => $full_image_link,
@@ -260,16 +242,17 @@ class NewNameListScrapingJob implements ShouldQueue
             }
 
             // dump($data);
-            // $this->saveInfo($data);
+
+            $this->saveInfo($data);
 
 
-            // $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update([
-            //     'wiki_image_page_url' => $image_page_url,
-            //     'wiki_image_url' => $full_image_link,
-            //     'wiki_image_path_pixel_color' => $pixelColor ?? '',
-            //     'description' => $fullDescriptionText,
-            //     'found' => 1,
-            // ]);
+            $cnoItem = DB::table('cno')->where('keyword', $originalKeyword)->update([
+                'wiki_image_page_url' => $image_page_url,
+                'wiki_image_url' => $full_image_link,
+                'wiki_image_path_pixel_color' => $pixelColor ?? '',
+                'description' => $fullDescriptionText,
+                'found' => 1,
+            ]);
         }
     }
 
@@ -306,5 +289,27 @@ class NewNameListScrapingJob implements ShouldQueue
     public function saveInfo($data)
     {
         $this->thread->update($data);
+    }
+
+
+    public function foundOld($cnoItem){
+         dump('found old');
+        $data = [
+            'wiki_image_page_url' => $cnoItem->wiki_image_page_url,
+            'wiki_image_url' => $cnoItem->wiki_image_url,
+            'wiki_image_path_pixel_color' => $cnoItem->wiki_image_path_pixel_color,
+            'description' => $cnoItem->description
+
+        ];
+
+        if (strtoupper($cnoItem->keyword) == 'C') {
+            $data['cno'] = 'C';
+        } else if (strtoupper($cnoItem->keyword) == 'F') {
+            $data['cno'] = 'F';
+        } else {
+            $data['cno'] = 'O';
+        }
+        // dump($data);
+        $this->saveInfo($data);
     }
 }

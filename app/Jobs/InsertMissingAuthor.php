@@ -47,17 +47,23 @@ class InsertMissingAuthor implements ShouldQueue
         $descriptionText = '';
 
         $image_page = $client->request('GET', $image_page_url);
+        if($image_page->filter('.mw-filepage-resolutioninfo a')->count() > 0){
+            $full_image_link =  $image_page->filter('.mw-filepage-resolutioninfo a')->first()->extract(['href'])[0];
+            $full_image_link = str_replace('//upload', 'upload', $full_image_link);
+            $full_image_link = 'https://' . $full_image_link;
+            $full_image_link =  str_replace("//https:", '//', $full_image_link);
 
-        if ($image_page->filter('.fullImageLink a')->count() > 0) {
+            dump($full_image_link);
+        }
+        elseif ($image_page->filter('.fullImageLink a')->count() > 0) {
             $full_image_link =  $image_page->filter('.fullImageLink a')->first()->extract(['href'])[0];
             $full_image_link = str_replace('//upload', 'upload', $full_image_link);
             $full_image_link = 'https://' . $full_image_link;
             $full_image_link =  str_replace("//https:", '//', $full_image_link);
+            dump('default resolution');
         }
 
         if (isset($full_image_link)) {
-            dump('image-link inside');
-
             $description = $image_page->filter('div.description');
             if ($description->count() > 0) {
                 $description =  $description->first()->text();
@@ -105,7 +111,6 @@ class InsertMissingAuthor implements ShouldQueue
             $author = $image_page->filter('td#fileinfotpl_aut');
 
             if ($author->count() > 0) {
-                dump('inside author');
                 $newAuthor = $image_page->filter('td#fileinfotpl_aut')->nextAll();
                 $newAuthorAnchor = $newAuthor->filter('a');
 
@@ -117,7 +122,6 @@ class InsertMissingAuthor implements ShouldQueue
                 }
             }
             dump($this->thread->id);
-            dump($authorText);
 
             $fullDescriptionText = sprintf('%s %s %s', $descriptionText, $authorText, $htmlLicense);
 

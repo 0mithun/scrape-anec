@@ -596,9 +596,12 @@ class ThreadController extends Controller
 
     public function newNameListScraping()
     {
-        // $threads = Thread::whereNotNull('wiki_image_path')->get();
+        $threads = Thread::all();
+        // $threads = Thread::whereNotNull('wiki_image_path')->limit(100)->get();
 
-        $threads = Thread::where('slug','punch-drunk-revision')->get();
+        // return $threads;
+
+        // $threads = Thread::where('slug','punch-drunk-revision')->get();
 
         foreach ($threads as $thread) {
             dispatch(new NewNameListScrapingJob($thread));
@@ -616,8 +619,10 @@ class ThreadController extends Controller
 
      public function insertMissingJob()
     {
-        $threads = Thread::whereNotNull('wiki_image_page_url')->get();
-        // $threads = Thread::where('id',110)->limit(100)->get();
+        // $threads = Thread::select(['wiki_image_page_url'])->whereNotNull('wiki_image_page_url')->limit(10)->get();
+        // return $threads;
+         $threads = Thread::whereNotNull('wiki_image_page_url')->get();
+        // $threads = Thread::whereNotNull('wiki_image_page_url')->limit(100)->get();
         foreach ($threads as $thread) {
             dispatch(new InsertMissingAuthor($thread));
         }

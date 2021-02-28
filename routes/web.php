@@ -254,7 +254,7 @@ Route::get('/image-page-not-found', function () {
     return DB::table('image_page_not_found')->get();
 });
 
-// Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
+Route::get( 'new-tag-scrape', 'TagController@newTagScrape' );
 
 // Route::get( '/remove-junk-tags', 'TagController@removeJunkTags' );
 
@@ -282,13 +282,14 @@ Route::get('add-bracket-to-tag-license', 'TagController@addBracket');
 Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
 
 // Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
-Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
-Route::get('insert-missing-author', 'ThreadController@insertMissingJob');
 
-Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
+// Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
+// Route::get('insert-missing-author', 'ThreadController@insertMissingJob');
+
+// Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
 // Route::get('insert-old-tag-to-new-tag', 'TagController@insertOldToNewDb');
 
-Route::get('insert-old-thread-tag-to-new-thread-tag', 'TagController@insertOldThreadTagToNewThreadTag');
+// Route::get('insert-old-thread-tag-to-new-thread-tag', 'TagController@insertOldThreadTagToNewThreadTag');
 
 
 // Route::get('add-old-like-to-new-like', function () {
