@@ -66,7 +66,7 @@ class NewTagScraping implements ShouldQueue {
 
         }
         if (isset($image_page_url)) {
-
+            dump('image page found');
             $this->scrpeImagePageUrl( $image_page_url );
         }
 
