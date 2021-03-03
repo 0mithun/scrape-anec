@@ -164,6 +164,7 @@ class TagController extends Controller
     public function newTagScrape()
     {
         $tags = Tags::where('photo', 'NOT LIKE', '%download%')->get();
+        // $tags = Tags::where('name', 'LIKE', '%pigs%')->get();
 
         // return $tags;
 

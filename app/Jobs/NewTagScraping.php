@@ -103,7 +103,7 @@ class NewTagScraping implements ShouldQueue {
         }
 
         if ( isset( $full_image_link ) ) {
-                $description = $image_page->filter( 'div.description' );
+                $description = $image_page->filter( 'td.description' );
 
                 if ( $description->count() > 0 ) {
                     $description = $description->first()->text();
@@ -180,7 +180,11 @@ class NewTagScraping implements ShouldQueue {
                     }
                 }
 
+                $descriptionText = '';
+
                 $fullDescriptionText = sprintf( '%s %s %s %s', $descriptionText, $authorText, $htmlLicense, $shopText );
+                dump($fullDescriptionText);
+                dump($this->tag->name);
                 $data = [
                     'photo'       => $full_image_link,
                     'description' => $fullDescriptionText,

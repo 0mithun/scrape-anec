@@ -64,7 +64,7 @@ class InsertMissingAuthor implements ShouldQueue
         }
 
         if (isset($full_image_link)) {
-            $description = $image_page->filter('div.description');
+            $description = $image_page->filter('td.description');
             if ($description->count() > 0) {
                 $description =  $description->first()->text();
                 $descriptionText = str_replace('English: ', '', $description);
@@ -115,11 +115,13 @@ class InsertMissingAuthor implements ShouldQueue
                 $newAuthorAnchor = $newAuthor->filter('a');
 
 
-                if ($newAuthorAnchor->count() > 0) {
-                    $authorText = $newAuthorAnchor->first()->text();
-                }else{
-                   $authorText = $newAuthor->first()->text();
-                }
+                // if ($newAuthorAnchor->count() > 0) {
+                //     $authorText = $newAuthorAnchor->first()->text();
+                // }else{
+                //    $authorText = $newAuthor->first()->text();
+                // }
+
+                $authorText = $newAuthor->first()->text();
             }
             dump($this->thread->id);
 

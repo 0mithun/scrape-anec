@@ -284,7 +284,7 @@ Route::get('add-bracket-to-thread-license', 'ThreadController@addBracket');
 // Route::get('insert-amzon-product-url-to-threads-table', 'ThreadController@insertAmazonProductUrlToThreadsTable');
 
 // Route::get('new-namelist-scraping', 'ThreadController@newNameListScraping');
-// Route::get('insert-missing-author', 'ThreadController@insertMissingJob');
+Route::get('insert-missing-author', 'ThreadController@insertMissingJob');
 
 // Route::get('insert-old-to-new-db', 'ThreadController@insertOldToNewDb');
 Route::get('insert-old-tag-to-new-tag', 'TagController@insertOldToNewDb');
