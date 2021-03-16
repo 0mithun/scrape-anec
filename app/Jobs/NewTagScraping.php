@@ -148,7 +148,7 @@ class NewTagScraping implements ShouldQueue {
                     if($htmlLicense != ''){
                         \dump($htmlLicense);
                     }else{
-                        \dump('other license');
+                        $htmlLicense = $this->checkLicense($image_page);
                     }
 
                      // https://creativecommons.org/licenses/by/1.0/
@@ -164,6 +164,8 @@ class NewTagScraping implements ShouldQueue {
                         // 'Public domain', -- No link needed
                         // 'CC BY-SA 1.5' -- Not EXISTS, USE: 1.0
 
+                }else{
+                    $htmlLicense = $this->checkLicense($image_page);
                 }
 
                 $author = $image_page->filter( 'td#fileinfotpl_aut' );
@@ -216,3 +218,48 @@ class NewTagScraping implements ShouldQueue {
     }
 
 }
+
+ public function checkLicense($image_page){
+
+        $text =    $image_page->text();
+         $htmlLicense = '';
+            $saLicenseType = [
+                'CC BY-SA 1.0',
+                'CC BY-SA 1.5',
+                'CC BY-SA 2.0',
+                'CC BY-SA 2.5',
+                'CC BY-SA 3.0',
+                'CC BY-SA 4.0',
+            ];
+            $nonSaLicenseType = [
+                'CC BY 1.0',
+                'CC BY 1.5',
+                'CC BY 2.0',
+                'CC BY 2.5',
+                'CC BY 3.0',
+                'CC BY 4.0',
+            ];
+            $matches = false;
+
+            foreach ($saLicenseType as $license) {
+                $pattern = "/$license/";
+                if(preg_match($pattern ,$text)){
+                    $htmlLicense = '<a href="https://creativecommons.org/licenses/by-sa/'.$license.'">' . $license . '</a>';
+                    $matches = true;
+                    break;
+                }
+            }
+
+            if($matches == false){
+                foreach ($nonSaLicenseType as $license) {
+                    $pattern = "/$license/";
+                    if(preg_match($pattern ,$text)){
+                        $htmlLicense = '<a href="https://creativecommons.org/licenses/by/'.$license.'">' . $license . '</a>';
+                        $matches = true;
+                        break;
+                    }
+                }
+            }
+
+       return $htmlLicense;
+    }
